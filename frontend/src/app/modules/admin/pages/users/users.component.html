@@ -1,0 +1,103 @@
+<!-- Toast notification -->
+<div *ngIf="toast" class="toast" [class.toast-success]="toast.type==='success'" [class.toast-error]="toast.type==='error'">
+  {{ toast.message }}
+</div>
+
+<!-- Header -->
+<div class="page-header fade-in-up">
+  <div class="header-left">
+    <h1 class="page-title"><app-icon name="users"></app-icon> Gestion des utilisateurs</h1>
+    <p class="page-subtitle">Approuvez ou refusez les demandes d'accès à la plateforme</p>
+  </div>
+  <div class="header-right">
+    <button (click)="loadUsers()" class="btn btn-secondary"><app-icon name="refresh"></app-icon> Actualiser</button>
+  </div>
+</div>
+
+<!-- Badge compteur en attente -->
+<div *ngIf="pendingCount > 0" class="alert-pending fade-in-up">
+  <app-icon name="warning"></app-icon> <strong>{{ pendingCount }}</strong> utilisateur(s) en attente d'approbation
+</div>
+
+<!-- Loading -->
+<div *ngIf="loading" class="loading-state">
+  <div class="spinner"></div>
+  <p>Chargement...</p>
+</div>
+
+<!-- Error -->
+<div *ngIf="error && !loading" class="alert alert-danger"><app-icon name="warning"></app-icon> {{ error }}</div>
+
+<div *ngIf="!loading && !error" class="card fade-in-up">
+
+  <!-- Filtres -->
+  <div class="filter-bar">
+    <button class="filter-btn" [class.active]="filter==='ALL'" (click)="filter='ALL'">Tous ({{ users.length }})</button>
+    <button class="filter-btn filter-pending" [class.active]="filter==='PENDING'" (click)="filter='PENDING'">⏳ En attente ({{ pendingCount }})</button>
+    <button class="filter-btn filter-approved" [class.active]="filter==='APPROVED'" (click)="filter='APPROVED'"><app-icon name="check-circle"></app-icon> Approuvés</button>
+    <button class="filter-btn filter-declined" [class.active]="filter==='DECLINED'" (click)="filter='DECLINED'"><app-icon name="close"></app-icon> Déclinés</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap" *ngIf="filteredUsers.length > 0">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Utilisateur</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+          <th>Date d'inscription</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers" class="fade-in" [class.row-pending]="user.status==='PENDING'">
+          <td>
+            <div class="candidate-cell">
+              <div class="candidate-avatar">{{ user.name.charAt(0).toUpperCase() }}</div>
+              <strong>{{ user.name }}</strong>
+            </div>
+          </td>
+          <td class="text-muted">{{ user.email }}</td>
+          <td>
+            <select class="role-select" [value]="user.role"
+                    [disabled]="user.loading"
+                    (change)="changeRole(user, $event)">
+              <option value="USER">USER</option>
+              <option value="RECRUITER">RECRUITER</option>
+              <option value="ADMIN_RH">ADMIN_RH</option>
+            </select>
+          </td>
+          <td><span class="badge" [class]="getStatusBadge(user.status)">{{ getStatusLabel(user.status) }}</span></td>
+          <td class="text-muted">{{ formatDate(user.createdAt) }}</td>
+          <td>
+            <div class="action-btns">
+              <button *ngIf="user.status === 'PENDING'" (click)="approve(user)"
+                class="btn btn-sm btn-approve" [disabled]="user.loading">
+                <ng-container *ngIf="!user.loading"><app-icon name="check-circle" [size]="16"></app-icon> Approuver</ng-container>
+                <ng-container *ngIf="user.loading">...</ng-container>
+              </button>
+              <button *ngIf="user.status === 'PENDING'" (click)="decline(user)"
+                class="btn btn-sm btn-decline" [disabled]="user.loading">
+                <ng-container *ngIf="!user.loading"><app-icon name="close" [size]="16"></app-icon> Décliner</ng-container>
+                <ng-container *ngIf="user.loading">...</ng-container>
+              </button>
+              <button *ngIf="user.status === 'APPROVED'" (click)="decline(user)"
+                class="btn btn-sm btn-decline" [disabled]="user.loading">
+                Révoquer
+              </button>
+              <span *ngIf="user.status === 'DECLINED'" class="text-muted">—</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Vide -->
+  <div *ngIf="filteredUsers.length === 0" class="empty-state">
+    <div class="empty-icon"><app-icon name="users" [size]="44"></app-icon></div>
+    <p>Aucun utilisateur dans cette catégorie.</p>
+  </div>
+</div>

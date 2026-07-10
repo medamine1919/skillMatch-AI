@@ -1,0 +1,46 @@
+# Git
+.git
+.gitignore
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env.local
+
+# Data directories (recreated at runtime)
+data/
+database/*.db
+
+# Logs
+*.log
+logs/
+
+# Node / Angular (dossier frontend géré séparément)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Backend Java (géré séparément)
+backend/target/
+backend/.mvn/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

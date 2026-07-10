@@ -1,0 +1,168 @@
+<!-- HEADER -->
+<div class="page-header fade-in-up">
+  <div>
+    <h1 class="page-title"><app-icon name="analytics"></app-icon> Analytics — Activité des recruteurs</h1>
+    <p class="page-subtitle">Vue d'ensemble des analyses et candidats traités par chaque recruteur</p>
+  </div>
+  <button (click)="loadAll()" class="btn btn-secondary"><app-icon name="refresh"></app-icon> Actualiser</button>
+</div>
+
+<div *ngIf="loading" class="loading-state"><div class="spinner"></div><p>Chargement des statistiques...</p></div>
+<div *ngIf="error && !loading" class="alert alert-danger"><app-icon name="warning"></app-icon> {{ error }}</div>
+
+<div *ngIf="!loading && !error">
+
+  <!-- KPI -->
+  <div class="kpi-grid fade-in-up">
+    <div class="kpi-card">
+      <div class="kpi-icon"><app-icon name="user" [size]="44"></app-icon>‍<app-icon name="briefcase"></app-icon></div>
+      <div><p class="kpi-label">Recruteurs actifs</p><p class="kpi-value">{{ totalRecruiters }}</p></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon"><app-icon name="document" [size]="44"></app-icon></div>
+      <div><p class="kpi-label">Analyses totales</p><p class="kpi-value">{{ totalAnalyses }}</p></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon"><app-icon name="star" [size]="44"></app-icon></div>
+      <div><p class="kpi-label">Score moyen global</p><p class="kpi-value">{{ averageScore }}<span class="unit">/100</span></p></div>
+    </div>
+  </div>
+
+  <!-- GRAPHIQUES -->
+  <div class="charts-row fade-in-up">
+    <!-- Bar chart : candidats par recruteur -->
+    <div class="chart-card">
+      <h3 class="chart-title"><app-icon name="analytics"></app-icon> Candidats analysés par recruteur</h3>
+      <div class="chart-box">
+        <canvas #barCanvas></canvas>
+      </div>
+    </div>
+
+    <!-- Line chart : analyses dans le temps -->
+    <div class="chart-card">
+      <div class="chart-head">
+        <h3 class="chart-title"><app-icon name="trending-up"></app-icon> Analyses dans le temps</h3>
+        <div class="granularity-switch">
+          <button [class.active]="timeGranularity==='day'"   (click)="changeGranularity('day')">Jour</button>
+          <button [class.active]="timeGranularity==='week'"  (click)="changeGranularity('week')">Semaine</button>
+          <button [class.active]="timeGranularity==='month'" (click)="changeGranularity('month')">Mois</button>
+        </div>
+      </div>
+      <div class="chart-box">
+        <canvas #lineCanvas></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECRUTEURS -->
+  <h2 class="section-title"><app-icon name="users"></app-icon> Performance par recruteur</h2>
+  <div class="recruiters-grid fade-in-up">
+    <div *ngFor="let r of recruiters" class="recruiter-card">
+      <div class="rc-head">
+        <div class="rc-avatar">{{ initial(r.recruiterName) }}</div>
+        <div class="rc-info">
+          <strong>{{ r.recruiterName }}</strong>
+          <span class="rc-email">{{ r.recruiterEmail }}</span>
+          <span class="rc-role">{{ r.role }}</span>
+        </div>
+      </div>
+
+      <div class="rc-stats">
+        <div class="rc-stat"><span class="rc-num">{{ r.totalAnalyses }}</span><span class="rc-lbl">Analyses</span></div>
+        <div class="rc-stat"><span class="rc-num" [class]="getScoreClass(r.avgScore)">{{ r.avgScore }}</span><span class="rc-lbl">Score moy.</span></div>
+      </div>
+
+      <!-- Distribution -->
+      <div class="rc-dist">
+        <div class="dist-seg seg-exc" [style.flex]="r.countExcellent || 0" [title]="r.countExcellent + ' excellents'"></div>
+        <div class="dist-seg seg-str" [style.flex]="r.countStrong || 0" [title]="r.countStrong + ' forts'"></div>
+        <div class="dist-seg seg-mod" [style.flex]="r.countModerate || 0" [title]="r.countModerate + ' modérés'"></div>
+        <div class="dist-seg seg-weak" [style.flex]="r.countWeak || 0" [title]="r.countWeak + ' faibles'"></div>
+      </div>
+      <div class="rc-legend">
+        <span><i class="dot seg-exc"></i>{{ r.countExcellent }} exc.</span>
+        <span><i class="dot seg-str"></i>{{ r.countStrong }} forts</span>
+        <span><i class="dot seg-mod"></i>{{ r.countModerate }} mod.</span>
+        <span><i class="dot seg-weak"></i>{{ r.countWeak }} faibles</span>
+      </div>
+
+      <div class="rc-footer">
+        <span class="rc-last"><app-icon name="clock"></app-icon> Dernière activité : {{ r.lastActivity || '—' }}</span>
+        <button class="btn btn-sm btn-primary" (click)="filterByRecruiter(r.recruiterId)">Voir ses candidats <app-icon name="arrow-right"></app-icon></button>
+      </div>
+    </div>
+
+    <div *ngIf="recruiters.length === 0" class="empty-state">
+      <div class="empty-icon"><app-icon name="inbox" [size]="44"></app-icon></div><p>Aucune analyse réalisée pour le moment.</p>
+    </div>
+  </div>
+
+  <!-- TABLEAU CANDIDATS FILTRABLE -->
+  <h2 class="section-title" id="candidates-table"><app-icon name="folder"></app-icon> Tous les candidats traités</h2>
+  <div class="card fade-in-up">
+    <div class="filters-bar">
+      <div class="search-bar">
+        <span class="search-icon"><app-icon name="search"></app-icon></span>
+        <input type="text" class="search-input" placeholder="Rechercher candidat, email ou recruteur..."
+               [(ngModel)]="search" (input)="applyFilters()" />
+      </div>
+
+      <select class="filter-select" [(ngModel)]="filterRecruiter" (change)="applyFilters()">
+        <option value="all">Tous les recruteurs</option>
+        <option *ngFor="let r of recruiters" [ngValue]="r.recruiterId">{{ r.recruiterName }}</option>
+      </select>
+
+      <select class="filter-select" [(ngModel)]="filterDecision" (change)="applyFilters()">
+        <option value="all">Toutes décisions</option>
+        <option value="Excellent"><app-icon name="award"></app-icon> Excellent</option>
+        <option value="Fort"><app-icon name="zap"></app-icon> Fort</option>
+        <option value="Modéré"><app-icon name="clipboard"></app-icon> Modéré</option>
+        <option value="Faible"><app-icon name="warning"></app-icon> Faible</option>
+      </select>
+
+      <button class="btn btn-secondary" (click)="resetFilters()">Réinitialiser</button>
+    </div>
+
+    <div class="results-info">{{ filtered.length }} candidat(s) trouvé(s)</div>
+
+    <div class="table-wrap" *ngIf="filtered.length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Candidat</th><th>Email</th><th>Recruteur</th>
+            <th>Score</th><th>Correspondance</th><th>Décision</th><th>Date</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of paged">
+            <td>
+              <div class="cell-name">
+                <div class="mini-avatar">{{ initial(c.candidateName) }}</div>
+                <strong>{{ c.candidateName }}</strong>
+              </div>
+            </td>
+            <td class="muted">{{ c.email }}</td>
+            <td><span class="recruiter-chip">{{ c.recruiterName }}</span></td>
+            <td><span class="score-pill" [class]="getScoreClass(c.overallScore)">{{ c.overallScore | number:'1.0-0' }}</span></td>
+            <td class="muted">{{ c.matchPercentage | number:'1.0-0' }}%</td>
+            <td><span class="badge" [class]="getDecisionClass(c.decision)">{{ c.decision }}</span></td>
+            <td class="muted">{{ c.createdAt }}</td>
+            <td><button class="btn btn-sm btn-primary" (click)="viewCandidate(c.id)"><app-icon name="eye"></app-icon> Détails</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="filtered.length === 0" class="empty-state">
+      <div class="empty-icon"><app-icon name="search" [size]="44"></app-icon></div><p>Aucun candidat ne correspond aux filtres.</p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="page-btn" (click)="prevPage()" [disabled]="currentPage === 0">‹</button>
+      <button *ngFor="let p of pageNumbers()" class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p + 1 }}</button>
+      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1">›</button>
+      <span class="page-info">Page {{ currentPage + 1 }}/{{ totalPages }}</span>
+    </div>
+  </div>
+</div>

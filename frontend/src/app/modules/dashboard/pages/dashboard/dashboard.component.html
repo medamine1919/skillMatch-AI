@@ -1,0 +1,262 @@
+<!-- ===== PAGE HEADER ===== -->
+<div class="page-header fade-in-up">
+  <div class="header-left">
+    <h1 class="page-title">Tableau de bord</h1>
+    <p class="page-subtitle">Analyse et présélection intelligente des candidats</p>
+  </div>
+  <div class="header-right">
+    <button (click)="exportToCSV()" class="btn btn-secondary">
+      <app-icon name="inbox"></app-icon> Exporter CSV
+    </button>
+    <a routerLink="/upload" class="btn btn-primary">
+      <app-icon name="plus"></app-icon> Analyser un CV
+    </a>
+  </div>
+</div>
+
+<div *ngIf="exportError" class="alert alert-danger fade-in-up">
+  <app-icon name="warning"></app-icon> {{ exportError }}
+</div>
+
+<!-- ===== LOADING ===== -->
+<div *ngIf="loading" class="loading-state fade-in">
+  <div class="spinner"></div>
+  <p>Chargement des données...</p>
+</div>
+
+<!-- ===== ERROR ===== -->
+<div *ngIf="error && !loading" class="alert alert-danger fade-in-up">
+  <app-icon name="warning"></app-icon> {{ error }}
+</div>
+
+<div *ngIf="!loading && !error" class="dashboard-body">
+
+  <!-- ===== KPI CARDS ===== -->
+  <div class="kpi-grid fade-in-up">
+    <div class="kpi-card kpi-total">
+      <div class="kpi-icon"><app-icon name="users" [size]="44"></app-icon></div>
+      <div class="kpi-data">
+        <p class="kpi-label">Total Candidats</p>
+        <p class="kpi-value">{{ stats.totalCandidates }}</p>
+      </div>
+      <div class="kpi-trend">+{{ stats.totalCandidates }} analysés</div>
+    </div>
+
+    <div class="kpi-card kpi-score">
+      <div class="kpi-icon"><app-icon name="star" [size]="44"></app-icon></div>
+      <div class="kpi-data">
+        <p class="kpi-label">Score Moyen</p>
+        <p class="kpi-value">{{ stats.averageScore }}<span class="kpi-unit">/100</span></p>
+      </div>
+      <div class="kpi-trend">Max: {{ stats.maxScore | number:'1.0-0' }}</div>
+    </div>
+
+    <div class="kpi-card kpi-match">
+      <div class="kpi-icon"><app-icon name="target" [size]="44"></app-icon></div>
+      <div class="kpi-data">
+        <p class="kpi-label">Correspondance Moy.</p>
+        <p class="kpi-value">{{ stats.averageMatch }}<span class="kpi-unit">%</span></p>
+      </div>
+      <div class="kpi-trend">Taux de matching IA</div>
+    </div>
+
+    <div class="kpi-card kpi-excellent">
+      <div class="kpi-icon"><app-icon name="award" [size]="44"></app-icon></div>
+      <div class="kpi-data">
+        <p class="kpi-label">Profils Excellents</p>
+        <p class="kpi-value">{{ stats.countExcellent }}</p>
+      </div>
+      <div class="kpi-trend">Score ≥ 85/100</div>
+    </div>
+  </div>
+
+  <!-- ===== DISTRIBUTION SCORES ===== -->
+  <div class="row-2col fade-in-up">
+
+    <!-- Distribution badges -->
+    <div class="card section-card">
+      <h3 class="section-title"><app-icon name="analytics"></app-icon> Distribution des profils</h3>
+      <div class="distribution-list">
+
+        <div class="dist-item">
+          <div class="dist-header">
+            <span class="badge badge-excellent"><app-icon name="award"></app-icon> Excellent</span>
+            <span class="dist-count">{{ stats.countExcellent }}</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill"
+              [style.width.%]="getPercent(stats.countExcellent)"
+              style="background: linear-gradient(90deg,#22c55e,#16a34a)"></div>
+          </div>
+          <span class="dist-pct">{{ getPercent(stats.countExcellent) | number:'1.0-0' }}%</span>
+        </div>
+
+        <div class="dist-item">
+          <div class="dist-header">
+            <span class="badge badge-strong"><app-icon name="zap"></app-icon> Fort</span>
+            <span class="dist-count">{{ stats.countStrong }}</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill"
+              [style.width.%]="getPercent(stats.countStrong)"
+              style="background: linear-gradient(90deg,#3b82f6,#2563eb)"></div>
+          </div>
+          <span class="dist-pct">{{ getPercent(stats.countStrong) | number:'1.0-0' }}%</span>
+        </div>
+
+        <div class="dist-item">
+          <div class="dist-header">
+            <span class="badge badge-moderate"><app-icon name="clipboard"></app-icon> Modéré</span>
+            <span class="dist-count">{{ stats.countModerate }}</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill"
+              [style.width.%]="getPercent(stats.countModerate)"
+              style="background: linear-gradient(90deg,#f59e0b,#d97706)"></div>
+          </div>
+          <span class="dist-pct">{{ getPercent(stats.countModerate) | number:'1.0-0' }}%</span>
+        </div>
+
+        <div class="dist-item">
+          <div class="dist-header">
+            <span class="badge badge-weak"><app-icon name="warning"></app-icon> Faible</span>
+            <span class="dist-count">{{ stats.countWeak }}</span>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill"
+              [style.width.%]="getPercent(stats.countWeak)"
+              style="background: linear-gradient(90deg,#ef4444,#dc2626)"></div>
+          </div>
+          <span class="dist-pct">{{ getPercent(stats.countWeak) | number:'1.0-0' }}%</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Top 10 -->
+    <div class="card section-card">
+      <h3 class="section-title"><app-icon name="award"></app-icon> Top 10 Candidats</h3>
+      <div *ngIf="topCandidates.length === 0" class="empty-state-sm">
+        Aucun candidat analysé pour le moment.
+      </div>
+      <ol class="top-list" *ngIf="topCandidates.length > 0">
+        <li *ngFor="let c of topCandidates; let i = index" class="top-item">
+          <span class="top-rank" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">
+            {{ i + 1 }}
+          </span>
+          <div class="top-info">
+            <strong>{{ c.candidateName }}</strong>
+            <span class="top-email">{{ c.email }}</span>
+          </div>
+          <div class="top-score">
+            <span class="score-pill" [class]="getScoreClass(c.scores.overallScore || 0)">
+              {{ c.scores.overallScore | number:'1.0-0' }}
+            </span>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+  </div>
+
+  <!-- ===== SEARCH + FILTER ===== -->
+  <div class="card results-card fade-in-up">
+    <div class="results-header">
+      <h3 class="section-title" style="margin-bottom:0"><app-icon name="clipboard"></app-icon> Tous les résultats</h3>
+      <div class="search-bar">
+        <span class="search-icon"><app-icon name="search"></app-icon></span>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Rechercher par nom ou email..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearch()"
+        />
+        <button *ngIf="searchQuery" (click)="clearSearch()" class="search-clear"><app-icon name="close"></app-icon></button>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap" *ngIf="filteredResults.length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Candidat</th>
+            <th>Email</th>
+            <th>Score Global</th>
+            <th>Correspondance</th>
+            <th>Éducation</th>
+            <th>Expérience</th>
+            <th>Compétences</th>
+            <th>Décision</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let result of getPaginatedResults()" class="fade-in">
+            <td>
+              <div class="candidate-cell">
+                <div class="candidate-avatar">{{ (result.candidateName.charAt(0).toUpperCase() || '?') }}</div>
+                <strong>{{ result.candidateName }}</strong>
+              </div>
+            </td>
+            <td class="text-muted">{{ result.email }}</td>
+            <td>
+              <div class="score-bar-cell">
+                <span class="score-number" [class]="getScoreClass(result.scores.overallScore || 0)">
+                  {{ result.scores.overallScore | number:'1.0-0' }}
+                </span>
+                <div class="mini-progress">
+                  <div class="mini-progress-fill"
+                    [style.width.%]="result.scores.overallScore || 0"
+                    [style.background]="getScoreColor(result.scores.overallScore || 0)">
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="match-pct">{{ result.matchPercentage | number:'1.0-0' }}%</span>
+            </td>
+            <td>{{ result.scores.educationScore | number:'1.1-1' }}</td>
+            <td>{{ result.scores.experienceScore | number:'1.1-1' }}</td>
+            <td>{{ result.scores.skillsScore | number:'1.1-1' }}</td>
+            <td>
+              <span class="badge" [class]="getDecisionBadge(result.scores.overallScore || 0)">
+                {{ getDecisionLabel(result.scores.overallScore || 0) }}
+              </span>
+            </td>
+            <td>
+              <a [routerLink]="['/candidates', result.id]" class="btn btn-sm btn-primary">
+                <app-icon name="eye"></app-icon> Détails
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- EMPTY -->
+    <div *ngIf="filteredResults.length === 0" class="empty-state">
+      <div class="empty-icon"><app-icon name="search" [size]="44"></app-icon></div>
+      <p>Aucun résultat trouvé<span *ngIf="searchQuery"> pour "{{ searchQuery }}"</span>.</p>
+      <a routerLink="/upload" class="btn btn-primary" *ngIf="!searchQuery">Analyser un premier CV</a>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button class="page-btn" (click)="prevPage()" [disabled]="currentPage === 0">‹ Préc.</button>
+      <button
+        *ngFor="let p of getPageNumbers()"
+        class="page-btn"
+        [class.active]="p === currentPage"
+        (click)="goToPage(p)">
+        {{ p + 1 }}
+      </button>
+      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage >= totalPages - 1">Suiv. ›</button>
+      <span class="page-info">
+        Page {{ currentPage + 1 }}/{{ totalPages }} — {{ filteredResults.length }} résultats
+      </span>
+    </div>
+
+  </div>
+</div>

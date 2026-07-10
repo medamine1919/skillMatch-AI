@@ -1,0 +1,15 @@
+<div class="error-container">
+  <div class="error-content">
+    <div class="error-code">CV</div>
+    <h1>Ce document n’est pas un CV</h1>
+    <p>{{ reason }}</p>
+    <div class="actions">
+      <button (click)="goToUpload()" class="btn btn-primary">
+        Importer un autre CV
+      </button>
+      <button (click)="goToDashboard()" class="btn btn-secondary">
+        Retour au tableau de bord
+      </button>
+    </div>
+  </div>
+</div>

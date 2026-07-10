@@ -1,0 +1,59 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><app-icon name="clipboard"></app-icon> Tests techniques</h1>
+    <p class="page-subtitle">Suivi des tests envoyés aux candidats et de leurs résultats</p>
+  </div>
+  <button (click)="load()" class="btn btn-secondary"><app-icon name="refresh" [size]="16"></app-icon> Actualiser</button>
+</div>
+
+<div *ngIf="loading" class="state"><div class="spinner"></div><p>Chargement...</p></div>
+<div *ngIf="error && !loading" class="alert-danger">{{ error }}</div>
+
+<div *ngIf="!loading && !error">
+  <!-- Filtres -->
+  <div class="chips">
+    <button class="chip" [class.active]="filter==='ALL'" (click)="setFilter('ALL')">Tous <span>{{ tests.length }}</span></button>
+    <button class="chip" [class.active]="filter==='PENDING'" (click)="setFilter('PENDING')">En attente <span>{{ countBy('PENDING') }}</span></button>
+    <button class="chip" [class.active]="filter==='COMPLETED'" (click)="setFilter('COMPLETED')">Passés <span>{{ countBy('COMPLETED') }}</span></button>
+    <button class="chip" [class.active]="filter==='EXPIRED'" (click)="setFilter('EXPIRED')">Expirés <span>{{ countBy('EXPIRED') }}</span></button>
+  </div>
+
+  <div class="table-wrap" *ngIf="filtered.length > 0">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Candidat</th><th>Poste</th><th>Statut</th><th>Score</th><th>Envoyé par</th><th>Envoyé le</th><th>Passé le</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of filtered">
+          <td>
+            <div class="cell-name">
+              <div class="mini-avatar">{{ initial(t.candidateName) }}</div>
+              <div>
+                <strong>{{ t.candidateName }}</strong>
+                <div class="muted">{{ t.candidateEmail }}</div>
+              </div>
+            </div>
+          </td>
+          <td class="muted">{{ t.jobTitle }}</td>
+          <td><span class="status" [class]="statusClass(t.status)">{{ statusLabel(t.status) }}</span></td>
+          <td>
+            <span *ngIf="t.status === 'COMPLETED'" class="score-pill" [class]="scoreClass(t.scorePercent)">
+              {{ t.scorePercent | number:'1.0-0' }}% ({{ t.correctCount }}/{{ t.totalQuestions }})
+            </span>
+            <span *ngIf="t.status !== 'COMPLETED'" class="muted">—</span>
+          </td>
+          <td class="muted">{{ t.recruiterName }}</td>
+          <td class="muted">{{ t.sentAt }}</td>
+          <td class="muted">{{ t.completedAt || '—' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="filtered.length === 0" class="empty">
+    <app-icon name="inbox" [size]="40"></app-icon>
+    <p>Aucun test pour ce filtre.</p>
+  </div>
+</div>

@@ -1,0 +1,3 @@
+[server]
+# Workaround for Streamlit + torch.classes watcher crash on Windows.
+fileWatcherType = "none"

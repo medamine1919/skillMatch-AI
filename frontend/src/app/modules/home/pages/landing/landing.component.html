@@ -1,0 +1,119 @@
+<!-- ===== HERO ===== -->
+<div class="hero fade-in-up">
+  <div class="hero-bg-circle circle-1"></div>
+  <div class="hero-bg-circle circle-2"></div>
+
+  <div class="hero-content">
+    <div class="hero-brand">
+      <img src="assets/branding/teclitech-logo.svg" alt="DecliTech" class="hero-brand-logo" />
+      <span class="hero-brand-caption">Plateforme intelligente</span>
+    </div>
+    <h1 class="hero-title">
+      {{ greeting }}, <span class="gradient-text">{{ userName }}</span> <app-icon name="smile"></app-icon>
+    </h1>
+    <p class="hero-subtitle">
+      Analysez, scorez et présélectionnez vos candidats en quelques secondes
+      grâce à l'intelligence artificielle.
+    </p>
+
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-lg" (click)="goToUpload()">
+        <app-icon name="rocket"></app-icon> Analyser un CV
+      </button>
+      <button class="btn btn-secondary btn-lg" (click)="goToDashboard()">
+        <app-icon name="analytics"></app-icon> Voir le dashboard
+      </button>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="hero-stats">
+      <div class="stat-pill">
+        <span class="stat-icon"><app-icon name="users"></app-icon></span>
+        <div>
+          <strong>{{ stats.totalCandidates }}</strong>
+          <span>Candidats analysés</span>
+        </div>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-icon"><app-icon name="star"></app-icon></span>
+        <div>
+          <strong>{{ stats.averageScore }}/100</strong>
+          <span>Score moyen</span>
+        </div>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-icon"><app-icon name="award"></app-icon></span>
+        <div>
+          <strong>{{ stats.countExcellent }}</strong>
+          <span>Profils excellents</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FEATURES ===== -->
+<section class="features-section fade-in-up">
+  <h2 class="section-heading"><app-icon name="target"></app-icon> Que souhaitez-vous faire ?</h2>
+  <div class="features-grid">
+    <div
+      *ngFor="let f of features; let i = index"
+      class="feature-card"
+      [class]="f.color"
+      [style.animation-delay.ms]="i * 100"
+      (click)="f.action()">
+      <div class="feature-icon"><app-icon [name]="f.icon" [size]="28"></app-icon></div>
+      <h3>{{ f.title }}</h3>
+      <p>{{ f.description }}</p>
+      <span class="feature-btn">{{ f.buttonText }}</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="how-section fade-in-up">
+  <h2 class="section-heading"><app-icon name="settings"></app-icon> Comment ça marche ?</h2>
+  <div class="steps-grid">
+    <div *ngFor="let s of steps; let i = index" class="step-card" [style.animation-delay.ms]="i * 120">
+      <div class="step-number">{{ s.num }}</div>
+      <div class="step-icon"><app-icon [name]="s.icon" [size]="26"></app-icon></div>
+      <h4>{{ s.title }}</h4>
+      <p>{{ s.desc }}</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RECENT ACTIVITY ===== -->
+<section class="recent-section fade-in-up" *ngIf="recentCandidates.length > 0">
+  <div class="recent-header">
+    <h2 class="section-heading" style="margin:0"><app-icon name="clock"></app-icon> Activité récente</h2>
+    <button class="btn btn-ghost" (click)="goToHistory()">Voir tout <app-icon name="arrow-right"></app-icon></button>
+  </div>
+  <div class="recent-list">
+    <div
+      *ngFor="let c of recentCandidates"
+      class="recent-item"
+      (click)="goToCandidate(c.id)">
+        <div class="recent-avatar">
+        {{ (c.candidateName.charAt(0).toUpperCase() || '?') }}
+      </div>
+      <div class="recent-info">
+        <strong>{{ c.candidateName }}</strong>
+        <span class="recent-email">{{ c.email }}</span>
+      </div>
+      <span class="recent-score" [class]="getScoreClass(c.scores.overallScore || 0)">
+        {{ c.scores.overallScore | number:'1.0-0' }}/100
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EMPTY (si aucun candidat) ===== -->
+<section *ngIf="!loading && recentCandidates.length === 0" class="empty-cta fade-in-up">
+  <div class="empty-cta-icon"><app-icon name="inbox"></app-icon></div>
+  <h3>Aucun candidat analysé pour le moment</h3>
+  <p>Téléversez votre premier CV pour démarrer.</p>
+  <button class="btn btn-primary btn-lg" (click)="goToUpload()">
+    <app-icon name="rocket"></app-icon> Analyser mon premier CV
+  </button>
+</section>

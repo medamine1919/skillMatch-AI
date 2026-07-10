@@ -1,0 +1,64 @@
+<div class="app-layout" [class.no-sidebar]="!(currentUser$ | async)">
+  <!-- SIDEBAR : masquée si non connecté (page login/register) -->
+  <aside class="sidebar" *ngIf="currentUser$ | async as user">
+    <div class="sidebar-brand">
+      <div class="brand-icon"><app-icon name="target" [size]="22"></app-icon></div>
+      <div class="brand-text">
+        <span class="brand-name">SkillMatch</span>
+        <span class="brand-sub">AI Platform</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/home" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"><app-icon name="home"></app-icon></span>
+        <span class="nav-label">Accueil</span>
+      </a>
+      <a routerLink="/upload" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"><app-icon name="upload"></app-icon></span>
+        <span class="nav-label">Analyser un CV</span>
+      </a>
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"><app-icon name="dashboard"></app-icon></span>
+        <span class="nav-label">Tableau de bord</span>
+      </a>
+      <a routerLink="/candidates" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"><app-icon name="users"></app-icon></span>
+        <span class="nav-label">Candidats</span>
+      </a>
+      <a routerLink="/tests" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"><app-icon name="clipboard"></app-icon></span>
+        <span class="nav-label">Tests</span>
+      </a>
+      <a routerLink="/tests-dashboard" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"><app-icon name="analytics"></app-icon></span>
+        <span class="nav-label">Dashboard Test</span>
+      </a>
+      <!-- Visible uniquement pour l'admin RH -->
+      <a *ngIf="user.role === 'ADMIN_RH'" routerLink="/admin/analytics" routerLinkActive="active" class="nav-item nav-item-admin">
+        <span class="nav-icon"><app-icon name="analytics"></app-icon></span>
+        <span class="nav-label">Analytics RH</span>
+      </a>
+      <a *ngIf="user.role === 'ADMIN_RH'" routerLink="/admin/users" routerLinkActive="active" class="nav-item nav-item-admin">
+        <span class="nav-icon"><app-icon name="settings"></app-icon></span>
+        <span class="nav-label">Gestion accès</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">{{ (user.email.charAt(0) || '?').toUpperCase() }}</div>
+        <div class="user-details">
+          <span class="user-email">{{ user.email }}</span>
+          <span class="user-role">{{ roleLabel(user.role) }}</span>
+        </div>
+      </div>
+      <button (click)="logout()" class="btn-logout" title="Déconnexion"><app-icon name="power" [size]="18"></app-icon></button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

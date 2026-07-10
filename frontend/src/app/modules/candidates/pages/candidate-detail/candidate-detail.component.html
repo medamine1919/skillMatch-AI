@@ -1,0 +1,282 @@
+<!-- CHARGEMENT -->
+<div *ngIf="loading" class="loading fade-in">
+  <div class="spinner"></div>
+  <p>Chargement du profil candidat...</p>
+</div>
+
+<!-- ERREUR -->
+<div *ngIf="error" class="error-message fade-in"><app-icon name="warning"></app-icon> {{ error }}</div>
+
+<!-- CONTENU PRINCIPAL -->
+<div class="candidate-detail-container fade-in-up" *ngIf="!loading && candidate">
+
+  <!-- ===== HEADER ===== -->
+  <div class="candidate-header">
+    <div class="candidate-avatar-big">
+      {{ (candidate.name.charAt(0).toUpperCase() || '?') }}
+    </div>
+    <div class="candidate-info">
+      <h1>{{ candidate.name }}</h1>
+      <p class="email"><app-icon name="mail"></app-icon> {{ candidate.email }}</p>
+      <p class="phone" *ngIf="candidate.phone"><app-icon name="phone"></app-icon> {{ candidate.phone }}</p>
+    </div>
+    <div class="header-score" *ngIf="candidate.lastAnalysis">
+      <p class="score-big-label">Score Global</p>
+      <p class="score-big-value"
+        [style.color]="candidate.lastAnalysis.scores.overallScore >= 70 ? '#86efac' : candidate.lastAnalysis.scores.overallScore >= 55 ? '#fde68a' : '#fca5a5'">
+        {{ candidate.lastAnalysis.scores.overallScore | number:'1.0-0' }}
+      </p>
+      <p class="score-big-sub">/ 100 pts</p>
+    </div>
+  </div>
+
+  <!-- ===== BANDEAU TALENT SEARCH ===== -->
+  <div class="search-highlight-banner" *ngIf="hasSearch">
+    <app-icon name="search"></app-icon> Recherche : « <em>{{ searchQueryText }}</em> » — les correspondances sont
+    <mark class="kw-highlight">surlignées</mark> ci-dessous.
+  </div>
+
+  <!-- ===== ANALYSE ===== -->
+  <div class="analysis-section" *ngIf="candidate.lastAnalysis">
+
+    <!-- SCORES GRID -->
+    <div class="scores-grid">
+      <div class="score-card">
+        <h4>Correspondance</h4>
+        <p class="score-value"
+          [class.high]="candidate.lastAnalysis.matchPercentage >= 70"
+          [class.medium]="candidate.lastAnalysis.matchPercentage >= 55 && candidate.lastAnalysis.matchPercentage < 70"
+          [class.low]="candidate.lastAnalysis.matchPercentage < 55">
+          {{ candidate.lastAnalysis.matchPercentage | number:'1.0-0' }}%
+        </p>
+      </div>
+      <div class="score-card">
+        <h4>Éducation</h4>
+        <p class="score-value"
+          [class.high]="candidate.lastAnalysis.scores.educationScore >= 10"
+          [class.medium]="candidate.lastAnalysis.scores.educationScore >= 7 && candidate.lastAnalysis.scores.educationScore < 10"
+          [class.low]="candidate.lastAnalysis.scores.educationScore < 7">
+          {{ candidate.lastAnalysis.scores.educationScore | number:'1.1-1' }}
+        </p>
+      </div>
+      <div class="score-card">
+        <h4>Expérience</h4>
+        <p class="score-value"
+          [class.high]="candidate.lastAnalysis.scores.experienceScore >= 10"
+          [class.medium]="candidate.lastAnalysis.scores.experienceScore >= 7 && candidate.lastAnalysis.scores.experienceScore < 10"
+          [class.low]="candidate.lastAnalysis.scores.experienceScore < 7">
+          {{ candidate.lastAnalysis.scores.experienceScore | number:'1.1-1' }}
+        </p>
+      </div>
+      <div class="score-card">
+        <h4>Compétences</h4>
+        <p class="score-value"
+          [class.high]="candidate.lastAnalysis.scores.skillsScore >= 18"
+          [class.medium]="candidate.lastAnalysis.scores.skillsScore >= 12 && candidate.lastAnalysis.scores.skillsScore < 18"
+          [class.low]="candidate.lastAnalysis.scores.skillsScore < 12">
+          {{ candidate.lastAnalysis.scores.skillsScore | number:'1.1-1' }}
+        </p>
+      </div>
+      <div class="score-card">
+        <h4>Soft Skills</h4>
+        <p class="score-value"
+          [class.high]="candidate.lastAnalysis.scores.softSkillsScore >= 7"
+          [class.medium]="candidate.lastAnalysis.scores.softSkillsScore >= 5 && candidate.lastAnalysis.scores.softSkillsScore < 7"
+          [class.low]="candidate.lastAnalysis.scores.softSkillsScore < 5">
+          {{ candidate.lastAnalysis.scores.softSkillsScore | number:'1.1-1' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- BANDEAU HORS-DOMAINE -->
+    <div class="out-of-scope-banner" *ngIf="isOutOfScope">
+      <app-icon name="ban"></app-icon> <strong>Profil hors domaine.</strong>
+      L'exigence du poste et le CV relèvent de domaines différents<span *ngIf="outOfScopeDomain"> (domaine détecté : <strong>{{ outOfScopeDomain }}</strong>)</span>.
+      Le score est donc volontairement très bas — ce candidat ne correspond pas au poste demandé.
+    </div>
+
+    <!-- MATCHING DÉTAILLÉ -->
+    <div class="section" *ngIf="hasComparisonDetails()">
+      <h3><app-icon name="analytics"></app-icon> Analyse du matching CV <app-icon name="arrow-left-right"></app-icon> Poste</h3>
+      <p class="comparison-summary">
+        Cette vue compare le profil du candidat avec les exigences du poste, selon les scores pondérés.
+      </p>
+
+      <div class="comparison-grid">
+        <div class="comparison-item" [class.is-inactive]="metric.inactive" *ngFor="let metric of getComparisonMetrics()">
+          <div class="comparison-item-header">
+            <h4>{{ metric.label }}</h4>
+            <!-- Critère évalué : badge avec la note -->
+            <span *ngIf="!metric.inactive" class="comparison-badge"
+              [class.high]="metric.level === 'high'"
+              [class.medium]="metric.level === 'medium'"
+              [class.low]="metric.level === 'low'">
+              {{ formatMetricValue(metric.points, metric.maxPoints) }}
+            </span>
+            <!-- Critère non demandé : libellé grisé -->
+            <span *ngIf="metric.inactive" class="comparison-badge badge-inactive">Non demandé</span>
+          </div>
+          <p class="comparison-description">{{ metric.description }}</p>
+
+          <ng-container *ngIf="!metric.inactive">
+            <div class="comparison-bar">
+              <div class="comparison-bar-fill"
+                [class.high]="metric.level === 'high'"
+                [class.medium]="metric.level === 'medium'"
+                [class.low]="metric.level === 'low'"
+                [style.width.%]="metric.percentage">
+              </div>
+            </div>
+            <p class="comparison-percentage">{{ metric.percentage | number:'1.0-0' }}%</p>
+          </ng-container>
+          <p *ngIf="metric.inactive" class="comparison-inactive-note">
+            Non inclus dans la note (non demandé par l'exigence du poste).
+          </p>
+        </div>
+      </div>
+
+      <div class="comparison-notes">
+        <div class="comparison-note">
+          <h4><app-icon name="zap"></app-icon> Points forts</h4>
+          <p *ngIf="getStrengths().length; else noStrengths">{{ getStrengths().join(' ; ') }}</p>
+          <ng-template #noStrengths><p>Aucun point fort dominant détecté.</p></ng-template>
+        </div>
+        <div class="comparison-note">
+          <h4><app-icon name="settings"></app-icon> Points à renforcer</h4>
+          <p *ngIf="getWeaknesses().length; else noWeak">{{ getWeaknesses().join(' ; ') }}</p>
+          <ng-template #noWeak><p>Aucune faiblesse majeure détectée.</p></ng-template>
+        </div>
+      </div>
+
+      <div class="comparison-summary-cards">
+        <div class="comparison-mini-card">
+          <span>Spécialité candidat</span>
+          <strong>{{ candidate.lastAnalysis.analysis.specialityCv || 'Non détectée' }}</strong>
+        </div>
+        <div class="comparison-mini-card">
+          <span>Spécialité poste</span>
+          <strong>{{ candidate.lastAnalysis.analysis.specialityRequirement || 'Non détectée' }}</strong>
+        </div>
+        <div class="comparison-mini-card">
+          <span>Similarité sémantique</span>
+          <strong>{{ (candidate.lastAnalysis.analysis.semanticSimilarityRatio || 0) * 100 | number:'1.0-0' }}%</strong>
+        </div>
+        <div class="comparison-mini-card">
+          <span>Décision IA</span>
+          <strong>{{ candidate.lastAnalysis.analysis.decisionLabel || 'N/A' }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPÉTENCES TECHNIQUES -->
+    <div class="section" *ngIf="candidate.lastAnalysis.analysis.skills.length">
+      <h3><app-icon name="settings"></app-icon> Compétences techniques</h3>
+      <div class="tags">
+        <span class="tag" *ngFor="let skill of candidate.lastAnalysis.analysis.skills"
+              [class.tag-matched]="matchesSearch(skill)" [innerHTML]="highlight(skill)"></span>
+      </div>
+    </div>
+
+    <!-- SOFT SKILLS -->
+    <div class="section" *ngIf="candidate.lastAnalysis.analysis.softSkills.length">
+      <h3><app-icon name="users"></app-icon> Soft Skills</h3>
+      <div class="tags">
+        <span class="tag soft-skill" *ngFor="let s of candidate.lastAnalysis.analysis.softSkills"
+              [class.tag-matched]="matchesSearch(s)" [innerHTML]="highlight(s)"></span>
+      </div>
+    </div>
+
+    <!-- EXPÉRIENCES -->
+    <div class="section" *ngIf="candidate.lastAnalysis.analysis.experience.length">
+      <h3><app-icon name="briefcase"></app-icon> Expériences professionnelles</h3>
+      <div class="experiences">
+        <div class="experience-item" *ngFor="let exp of candidate.lastAnalysis.analysis.experience">
+          <div class="exp-header">
+            <h4 [innerHTML]="highlight(exp.title)"></h4>
+            <span class="duration" *ngIf="exp.duration">{{ exp.duration }}</span>
+          </div>
+          <p class="company" *ngIf="exp.company"><app-icon name="building"></app-icon> <span [innerHTML]="highlight(exp.company)"></span></p>
+          <p class="description" *ngIf="exp.description" [innerHTML]="highlight(exp.description)"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉDUCATION -->
+    <div class="section" *ngIf="hasAnalysisEducation">
+      <h3><app-icon name="graduation"></app-icon> Formation</h3>
+      <div class="education">
+        <div class="edu-item" *ngFor="let edu of analysisEducation">
+          <h4><span [innerHTML]="highlight(edu.degree)"></span><span *ngIf="edu.field"> — <span [innerHTML]="highlight(edu.field)"></span></span></h4>
+          <p><span [innerHTML]="highlight(edu.institution)"></span><span *ngIf="edu.year"> ({{ edu.year }})</span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LANGUES -->
+    <div class="section" *ngIf="hasAnalysisLanguages">
+      <h3><app-icon name="globe"></app-icon> Langues</h3>
+      <div class="tags">
+        <span class="tag" *ngFor="let lang of analysisLanguages"
+              [class.tag-matched]="matchesSearch(lang)" [innerHTML]="highlight(lang)"></span>
+      </div>
+    </div>
+
+    <!-- CERTIFICATIONS -->
+    <div class="section" *ngIf="hasAnalysisCertifications">
+      <h3><app-icon name="award"></app-icon> Certifications</h3>
+      <div class="tags">
+        <span class="tag cert" *ngFor="let cert of analysisCertifications"
+              [class.tag-matched]="matchesSearch(cert)" [innerHTML]="highlight(cert)"></span>
+      </div>
+    </div>
+
+    <!-- PROJETS -->
+    <div class="section" *ngIf="hasAnalysisProjects">
+      <h3><app-icon name="rocket"></app-icon> Projets</h3>
+      <ul style="padding-left:1.25rem; color:var(--text); line-height:1.8">
+        <li *ngFor="let p of analysisProjects" [innerHTML]="highlight(p)"></li>
+      </ul>
+    </div>
+
+    <!-- RÉSUMÉ / LOCALISATION -->
+    <div class="section" *ngIf="candidate.lastAnalysis.analysis.summary || candidate.lastAnalysis.analysis.location">
+      <h3><app-icon name="edit"></app-icon> Résumé extrait</h3>
+      <p *ngIf="candidate.lastAnalysis.analysis.summary" style="color:var(--text-muted);line-height:1.6;margin-bottom:.5rem"
+         [innerHTML]="highlight(candidate.lastAnalysis.analysis.summary)">
+      </p>
+      <p *ngIf="candidate.lastAnalysis.analysis.location">
+        <app-icon name="location"></app-icon> <strong>Localisation:</strong> {{ candidate.lastAnalysis.analysis.location }}
+      </p>
+      <p *ngIf="candidate.lastAnalysis.analysis.recommendationLabel" style="margin-top:.5rem">
+        <app-icon name="cpu"></app-icon> <strong>Recommandation IA:</strong> {{ candidate.lastAnalysis.analysis.recommendationLabel }}
+      </p>
+    </div>
+
+    <!-- RECOMMANDATIONS -->
+    <div class="section recommendations" *ngIf="candidate.lastAnalysis.recommendations.length">
+      <h3><app-icon name="lightbulb"></app-icon> Recommandations IA</h3>
+      <ul>
+        <li *ngFor="let rec of candidate.lastAnalysis.recommendations">{{ rec }}</li>
+      </ul>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions">
+      <a routerLink="/dashboard" class="btn btn-secondary"><app-icon name="arrow-left"></app-icon> Retour au dashboard</a>
+      <button (click)="downloadReport()" class="btn btn-primary">
+        <app-icon name="inbox"></app-icon> Télécharger rapport PDF
+      </button>
+      <!-- Envoi du test technique au candidat -->
+      <button (click)="sendTest()" class="btn btn-test" [disabled]="sendingTest">
+        <app-icon name="mail"></app-icon>
+        <span *ngIf="!sendingTest">Envoyer un test</span>
+        <span *ngIf="sendingTest">Envoi...</span>
+      </button>
+    </div>
+    <!-- Toast de confirmation/erreur d'envoi du test -->
+    <div *ngIf="testMessage" class="test-toast" [class.ok]="testOk" [class.ko]="!testOk">
+      {{ testMessage }}
+    </div>
+
+  </div>
+</div>

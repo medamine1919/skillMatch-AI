@@ -1,0 +1,46 @@
+# ===== Secrets / variables d'environnement =====
+.env
+*.env
+!.env.example
+
+# ===== Java / Spring Boot =====
+backend/target/
+*.class
+*.jar
+*.war
+
+# ===== Python =====
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+data/
+database/
+*.db
+
+# ===== Node / Angular =====
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+npm-debug.log*
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.iml
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Docker volumes locaux =====
+postgres_data/
+
+# Artefact accidentel
+$null
+
+# Config locale Claude Code
+.claude/

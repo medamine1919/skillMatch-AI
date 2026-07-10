@@ -1,0 +1,71 @@
+<div class="auth-page">
+  <!-- LEFT PANEL -->
+  <div class="auth-brand">
+    <div class="brand-content">
+      <div class="brand-logo"><app-icon name="target"></app-icon></div>
+      <h1 class="brand-title">SkillMatch AI</h1>
+      <p class="brand-tagline">Plateforme intelligente de présélection de candidats</p>
+      <div class="brand-features">
+        <div class="feature-item"><span><app-icon name="cpu"></app-icon></span> Analyse IA des CVs en temps réel</div>
+        <div class="feature-item"><span><app-icon name="analytics"></app-icon></span> Scoring multi-critères sur 100 pts</div>
+        <div class="feature-item"><span><app-icon name="target"></app-icon></span> Matching sémantique avancé</div>
+        <div class="feature-item"><span><app-icon name="inbox"></app-icon></span> Rapports PDF automatiques</div>
+      </div>
+      <p class="brand-company">Déclitech Innovation © 2025</p>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="auth-form-panel">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2>Bienvenue <app-icon name="smile"></app-icon></h2>
+        <p>Connectez-vous à votre espace recruteur</p>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger"><app-icon name="warning"></app-icon> {{ error }}</div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+
+        <div class="form-group">
+          <label class="form-label"><app-icon name="mail"></app-icon> Email</label>
+          <input type="email" class="form-control"
+            [class.input-error]="submitted && f['email'].errors"
+            formControlName="email" placeholder="votre@email.com" autocomplete="email"/>
+          <div class="field-error" *ngIf="submitted && f['email'].errors">
+            <span *ngIf="f['email'].errors['required']">Email requis</span>
+            <span *ngIf="f['email'].errors['email']">Format invalide</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><app-icon name="lock"></app-icon> Mot de passe</label>
+          <input type="password" class="form-control"
+            [class.input-error]="submitted && f['password'].errors"
+            formControlName="password" placeholder="••••••••" autocomplete="current-password"/>
+          <div class="field-error" *ngIf="submitted && f['password'].errors">
+            <span *ngIf="f['password'].errors['required']">Mot de passe requis</span>
+            <span *ngIf="f['password'].errors['minlength']">Au moins 6 caractères</span>
+          </div>
+        </div>
+
+        <div class="form-group check-group login-options">
+          <label class="check-label">
+            <input type="checkbox" formControlName="rememberMe"/>
+            <span>Se souvenir de moi</span>
+          </label>
+          <a class="forgot-link" routerLink="/auth/forgot-password">Mot de passe oublié ?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-auth" [disabled]="loading">
+          <span *ngIf="!loading"><app-icon name="rocket"></app-icon> Se connecter</span>
+          <span *ngIf="loading" class="btn-loading">
+            <span class="mini-spinner"></span> Connexion...
+          </span>
+        </button>
+      </form>
+
+      <p class="auth-link">Pas encore de compte ? <a routerLink="/auth/register">Créer un compte</a></p>
+    </div>
+  </div>
+</div>

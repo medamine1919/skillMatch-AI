@@ -1,0 +1,60 @@
+<div class="pt-wrap">
+  <div class="pt-card">
+
+    <!-- En-tête -->
+    <div class="pt-header">
+      <h1>SkillMatch AI</h1>
+      <p>Test technique</p>
+    </div>
+
+    <!-- Chargement -->
+    <div *ngIf="loading" class="pt-info">Chargement du test...</div>
+
+    <!-- Erreur -->
+    <div *ngIf="error && !loading" class="pt-error">{{ error }}</div>
+
+    <!-- Test expiré -->
+    <div *ngIf="!loading && !error && status === 'EXPIRED'" class="pt-error">
+      Ce lien de test a expiré. Veuillez contacter le recruteur.
+    </div>
+
+    <!-- RÉSULTAT (après soumission ou si déjà passé) -->
+    <div *ngIf="result" class="pt-result">
+      <div class="pt-score" [class.ok]="result.passed" [class.ko]="!result.passed">
+        {{ result.scorePercent | number:'1.0-0' }}%
+      </div>
+      <p class="pt-result-label" *ngIf="result.correctCount !== undefined && result.totalQuestions">
+        {{ result.correctCount }} / {{ result.totalQuestions }} bonnes réponses
+      </p>
+      <p class="pt-verdict" [class.ok]="result.passed" [class.ko]="!result.passed">
+        {{ result.passed ? 'Test réussi !' : 'Test non réussi' }}
+      </p>
+      <p class="pt-thanks">Merci, vos réponses ont bien été enregistrées. Le recruteur a été notifié.</p>
+    </div>
+
+    <!-- QCM (test à passer) -->
+    <div *ngIf="!loading && !error && status === 'PENDING' && !result" class="pt-quiz">
+      <p class="pt-intro">
+        Bonjour <strong>{{ candidateName }}</strong>, voici votre test
+        <span *ngIf="jobTitle">pour « {{ jobTitle }} »</span>.
+        Répondez aux {{ questions.length }} questions ci-dessous.
+      </p>
+
+      <div *ngFor="let q of questions; let i = index" class="pt-question">
+        <p class="pt-q-text"><span class="pt-q-num">{{ i + 1 }}</span> {{ q.question }}</p>
+        <label *ngFor="let opt of q.options; let j = index" class="pt-option"
+               [class.selected]="answers[i] === j">
+          <input type="radio" [name]="'q' + i" [checked]="answers[i] === j" (change)="select(i, j)" />
+          <span>{{ opt }}</span>
+        </label>
+      </div>
+
+      <button class="pt-submit" [disabled]="!allAnswered || submitting" (click)="submit()">
+        <span *ngIf="!submitting">Valider mes réponses</span>
+        <span *ngIf="submitting">Envoi...</span>
+      </button>
+      <p class="pt-hint" *ngIf="!allAnswered">Répondez à toutes les questions pour valider.</p>
+    </div>
+
+  </div>
+</div>

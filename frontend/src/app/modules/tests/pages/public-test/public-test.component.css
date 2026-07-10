@@ -1,0 +1,55 @@
+.pt-wrap {
+  min-height: 100vh;
+  display: flex; align-items: flex-start; justify-content: center;
+  background: #f4f7fb; padding: 2.5rem 1rem;
+}
+.pt-card {
+  width: 100%; max-width: 720px;
+  background: #fff; border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.08); overflow: hidden;
+}
+.pt-header { background: #1F4E79; color: #fff; padding: 1.6rem; text-align: center; }
+.pt-header h1 { margin: 0; font-size: 1.5rem; }
+.pt-header p { margin: .3rem 0 0; color: #cadcfc; }
+
+.pt-info, .pt-error { padding: 2rem; text-align: center; font-size: 1rem; }
+.pt-error { color: #dc2626; }
+
+.pt-quiz { padding: 1.8rem; }
+.pt-intro { color: #1f2937; margin-bottom: 1.4rem; line-height: 1.5; }
+
+.pt-question { margin-bottom: 1.4rem; padding-bottom: 1.2rem; border-bottom: 1px solid #eef2f7; }
+.pt-q-text { font-weight: 600; color: #1f2937; margin: 0 0 .7rem; display: flex; gap: .5rem; }
+.pt-q-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 24px; height: 24px; border-radius: 50%;
+  background: #2563eb; color: #fff; font-size: .8rem; flex-shrink: 0;
+}
+.pt-option {
+  display: flex; align-items: center; gap: .6rem;
+  padding: .6rem .8rem; margin: .35rem 0;
+  border: 1.5px solid #e5e9f0; border-radius: 10px; cursor: pointer;
+  transition: all .15s;
+}
+.pt-option:hover { border-color: #2563eb; background: #f8faff; }
+.pt-option.selected { border-color: #2563eb; background: #eef4ff; }
+.pt-option input { accent-color: #2563eb; }
+
+.pt-submit {
+  width: 100%; margin-top: 1rem; padding: .9rem;
+  background: #1F4E79; color: #fff; border: none; border-radius: 10px;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+}
+.pt-submit:disabled { opacity: .5; cursor: not-allowed; }
+.pt-hint { text-align: center; color: #9ca3af; font-size: .82rem; margin-top: .6rem; }
+
+/* Résultat */
+.pt-result { padding: 2.5rem 1.8rem; text-align: center; }
+.pt-score { font-size: 3.5rem; font-weight: 800; line-height: 1; }
+.pt-score.ok { color: #16a34a; }
+.pt-score.ko { color: #dc2626; }
+.pt-result-label { color: #6b7280; margin: .6rem 0; }
+.pt-verdict { font-size: 1.2rem; font-weight: 700; margin: .4rem 0; }
+.pt-verdict.ok { color: #16a34a; }
+.pt-verdict.ko { color: #dc2626; }
+.pt-thanks { color: #6b7280; margin-top: 1rem; }

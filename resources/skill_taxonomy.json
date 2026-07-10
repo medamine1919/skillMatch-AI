@@ -1,0 +1,56 @@
+{
+  "AI/Data": [
+    "Python",
+    "SQL",
+    "Pandas",
+    "NumPy",
+    "Machine Learning",
+    "Deep Learning",
+    "NLP",
+    "Power BI"
+  ],
+  "Web Dev": [
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "TypeScript",
+    "Angular",
+    "React",
+    "Spring Boot",
+    "Node.js",
+    "Java"
+  ],
+  "Robotics/Embedded": [
+    "Arduino",
+    "Raspberry Pi",
+    "C",
+    "C++",
+    "Robotics",
+    "Sensors",
+    "Microcontroller",
+    "ROS"
+  ],
+  "Mobile": [
+    "Flutter",
+    "Android",
+    "Kotlin",
+    "Swift",
+    "React Native"
+  ],
+  "Cybersecurity": [
+    "OWASP",
+    "Pentest",
+    "Network Security",
+    "SIEM",
+    "SOC",
+    "Cybersecurity"
+  ],
+  "Programming for Kids": [
+    "Scratch",
+    "Blockly",
+    "Python",
+    "Workshops",
+    "Teaching",
+    "Tutoring"
+  ]
+}

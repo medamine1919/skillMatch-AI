@@ -1,0 +1,174 @@
+<div class="upload-page fade-in-up">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <h1 class="page-title"><app-icon name="upload"></app-icon> Analyser un CV</h1>
+    <p class="page-subtitle">Importez un CV pour le faire analyser par notre moteur IA</p>
+  </div>
+
+  <div class="upload-layout">
+
+    <!-- MAIN FORM CARD -->
+    <div class="upload-main card">
+
+      <!-- Alerts -->
+      <div *ngIf="success" class="alert alert-success fade-in"><app-icon name="check-circle"></app-icon> {{ success }}</div>
+      <div *ngIf="error"   class="alert alert-danger  fade-in"><app-icon name="close"></app-icon> {{ error }}</div>
+
+      <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()">
+
+        <!-- DROP ZONE -->
+        <div class="drop-zone-wrap">
+          <div
+            class="drop-zone"
+            [class.dragging]="isDragging"
+            [class.has-file]="selectedFile"
+            (click)="openFilePicker()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+          >
+            <input #fileInput type="file" class="file-input"
+              accept=".pdf,.doc,.docx" (change)="onFileSelected($event)"/>
+
+            <div *ngIf="!selectedFile" class="drop-content">
+              <div class="drop-icon"><app-icon name="document" [size]="44"></app-icon></div>
+              <p class="drop-title">Déposez votre CV ici</p>
+              <p class="drop-sub">ou <span class="browse-link">parcourez vos fichiers</span></p>
+              <div class="format-chips">
+                <span class="fmt-chip">PDF</span>
+                <span class="fmt-chip">DOC</span>
+                <span class="fmt-chip">DOCX</span>
+              </div>
+            </div>
+
+            <div *ngIf="selectedFile" class="file-preview">
+              <div class="file-icon-big"><app-icon [name]="getFileIcon()" [size]="40"></app-icon></div>
+              <div class="file-meta">
+                <p class="file-name">{{ selectedFile.name }}</p>
+                <p class="file-size">{{ getFileSize() }}</p>
+              </div>
+              <button type="button" class="remove-file" (click)="removeFile($event)" title="Supprimer"><app-icon name="close"></app-icon></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- REQUIREMENTS (OBLIGATOIRE) -->
+        <div class="form-group">
+          <label class="form-label">
+            <app-icon name="target"></app-icon> Exigences du poste
+            <span class="label-badge label-required">Obligatoire</span>
+          </label>
+          <textarea
+            class="form-control requirements-input"
+            formControlName="requirements"
+            placeholder="Décrivez le poste : compétences requises, soft skills, profil et expérience attendue...
+Ex: Développeur Full Stack Java/Angular, 3 ans d'expérience, esprit d'équipe, anglais courant..."
+            rows="6"
+          ></textarea>
+          <!-- Message d'erreur si le champ est vide / trop court -->
+          <p *ngIf="uploadForm.get('requirements')?.invalid && uploadForm.get('requirements')?.touched"
+             class="form-error">
+            <app-icon name="warning"></app-icon> Les exigences du poste sont obligatoires (au moins 10 caractères) — le CV est noté par rapport à ce besoin.
+          </p>
+          <p class="form-hint">
+            <app-icon name="lightbulb"></app-icon> Le CV est analysé SELON ce que vous demandez ici (compétences, soft skills, profil, expérience).
+            Plus c'est précis, plus le score est fiable.
+          </p>
+        </div>
+
+        <!-- SUBMIT -->
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg submit-btn"
+          [disabled]="loading || !selectedFile || uploadForm.invalid"
+        >
+          <span *ngIf="!loading" class="btn-content">
+            <span class="btn-icon"><app-icon name="rocket"></app-icon></span>
+            Lancer l'analyse IA
+          </span>
+          <span *ngIf="loading" class="btn-loading">
+            <span class="btn-spinner"></span>
+            Analyse en cours...
+          </span>
+        </button>
+
+      </form>
+    </div>
+
+    <!-- SIDE INFO -->
+    <aside class="upload-aside">
+
+      <div class="info-card card">
+        <h3 class="info-title"><app-icon name="cpu"></app-icon> Comment ça marche ?</h3>
+        <ol class="steps-list">
+          <li class="step-item">
+            <span class="step-num">1</span>
+            <div>
+              <strong>Importation</strong>
+              <p>Le CV est extrait (PDF, Word ou image via OCR)</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">2</span>
+            <div>
+              <strong>Analyse NLP</strong>
+              <p>Notre LLM (Llama 70B) extrait compétences, expériences et formations</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">3</span>
+            <div>
+              <strong>Scoring IA</strong>
+              <p>Un score sur 100 est calculé selon 6 critères pondérés</p>
+            </div>
+          </li>
+          <li class="step-item">
+            <span class="step-num">4</span>
+            <div>
+              <strong>Résultats</strong>
+              <p>Rapport détaillé avec décision et recommandations</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <div class="scoring-card card">
+        <h3 class="info-title"><app-icon name="scale"></app-icon> Critères de scoring</h3>
+        <div class="criteria-list">
+          <div class="criterion">
+            <span class="crit-label">Spécialité</span>
+            <div class="crit-bar"><div class="crit-fill" style="width:25%"></div></div>
+            <span class="crit-pts">25 pts</span>
+          </div>
+          <div class="criterion">
+            <span class="crit-label">Compétences tech.</span>
+            <div class="crit-bar"><div class="crit-fill" style="width:25%"></div></div>
+            <span class="crit-pts">25 pts</span>
+          </div>
+          <div class="criterion">
+            <span class="crit-label">Expérience</span>
+            <div class="crit-bar"><div class="crit-fill" style="width:15%"></div></div>
+            <span class="crit-pts">15 pts</span>
+          </div>
+          <div class="criterion">
+            <span class="crit-label">Formation</span>
+            <div class="crit-bar"><div class="crit-fill" style="width:15%"></div></div>
+            <span class="crit-pts">15 pts</span>
+          </div>
+          <div class="criterion">
+            <span class="crit-label">Soft Skills</span>
+            <div class="crit-bar"><div class="crit-fill" style="width:10%"></div></div>
+            <span class="crit-pts">10 pts</span>
+          </div>
+          <div class="criterion">
+            <span class="crit-label">Similarité séman.</span>
+            <div class="crit-bar"><div class="crit-fill" style="width:10%"></div></div>
+            <span class="crit-pts">10 pts</span>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+  </div>
+</div>

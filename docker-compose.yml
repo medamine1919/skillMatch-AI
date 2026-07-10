@@ -1,0 +1,111 @@
+services:
+
+  # ===== BASE DE DONNÉES POSTGRESQL =====
+  postgres:
+    image: postgres:15-alpine
+    container_name: cv_analysis_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cv_analysis
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cv_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cv_analysis"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ===== BACKEND SPRING BOOT =====
+  spring-boot-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cv_analysis_api
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      SERVER_PORT: 8082
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cv_analysis
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "false"
+      JWT_SECRET: 4c7f9a2b8e1d0f3c6b5a9e2d1c3b4a6f7e8d9c0b1a2f3e4d5c6b7a8e9f0d1c2a7b9d3e5f1c4a6b8d0e2f4c6a8b0d2f4
+      FASTAPI_URL: http://fastapi-service:8000
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      APP_BASE_URL: http://localhost:8082/api
+      APP_FRONTEND_URL: http://localhost:4200
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - cv_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -o /dev/null -w '%{http_code}' http://localhost:8082/api/cv-analysis/results | grep -qE '^[2-4]'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+
+  # ===== MICROSERVICE FASTAPI (IA + NLP) =====
+  fastapi-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cv_analysis_fastapi
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - fastapi_data:/app/data
+      - fastapi_db:/app/database
+    networks:
+      - cv_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ===== FRONTEND ANGULAR (servi par Nginx) =====
+  angular-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cv_analysis_frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    depends_on:
+      - spring-boot-api
+      - fastapi-service
+    networks:
+      - cv_network
+
+volumes:
+  postgres_data:
+    driver: local
+  fastapi_data:
+    driver: local
+  fastapi_db:
+    driver: local
+
+networks:
+  cv_network:
+    driver: bridge

@@ -1,0 +1,256 @@
+<!-- TOAST -->
+<div *ngIf="toast" class="toast" [class.toast-success]="toast.type==='success'" [class.toast-error]="toast.type==='error'">
+  {{ toast.message }}
+</div>
+
+<!-- ===== HEADER ===== -->
+<div class="page-header fade-in-up">
+  <div>
+    <h1 class="page-title"><app-icon name="users"></app-icon> Tous les candidats</h1>
+    <p class="page-subtitle">{{ filteredCandidates.length }} candidat(s) analysé(s) — vue par cartes</p>
+  </div>
+  <div style="display:flex; gap:10px;">
+    <button *ngIf="!trashMode" (click)="openTrash()" class="btn btn-secondary"><app-icon name="trash"></app-icon> Corbeille</button>
+    <button *ngIf="trashMode" (click)="closeTrash()" class="btn btn-secondary"><app-icon name="arrow-left"></app-icon> Retour aux candidats</button>
+    <a routerLink="/upload" class="btn btn-primary"><app-icon name="plus"></app-icon> Nouveau CV</a>
+  </div>
+</div>
+
+<!-- ===== VUE CORBEILLE ===== -->
+<div *ngIf="trashMode" class="fade-in-up">
+  <div class="trash-info">
+    <app-icon name="trash"></app-icon> Les candidats en corbeille sont <strong>supprimés définitivement après 30 jours</strong>. Vous pouvez les restaurer avant.
+  </div>
+
+  <div *ngIf="trashLoading" class="loading-state"><div class="spinner"></div><p>Chargement de la corbeille...</p></div>
+
+  <div *ngIf="!trashLoading && trashItems.length === 0" class="empty-state">
+    <div class="empty-icon"><app-icon name="trash" [size]="44"></app-icon></div>
+    <h3>Corbeille vide</h3>
+    <p>Aucun candidat supprimé.</p>
+  </div>
+
+  <div class="table-wrap" *ngIf="!trashLoading && trashItems.length > 0">
+    <table class="data-table">
+      <thead>
+        <tr><th>Candidat</th><th>Email</th><th>Score</th><th>Supprimé le</th><th>Purge dans</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of trashItems">
+          <td><strong>{{ item.candidateName }}</strong></td>
+          <td class="text-muted">{{ item.email }}</td>
+          <td>{{ item.overallScore | number:'1.0-0' }}</td>
+          <td class="text-muted">{{ item.deletedAt }}</td>
+          <td>
+            <span class="days-left" [class.urgent]="item.daysLeft <= 3">{{ item.daysLeft }} jour(s)</span>
+          </td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-sm btn-restore" (click)="restoreCandidate(item)"><app-icon name="restore"></app-icon> Restaurer</button>
+              <button class="btn btn-sm btn-purge" (click)="purgeCandidate(item)"><app-icon name="close"></app-icon> Supprimer</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== LOADING ===== -->
+<div *ngIf="!trashMode && loading" class="loading-state fade-in">
+  <div class="spinner"></div>
+  <p>Chargement des candidats...</p>
+</div>
+
+<!-- ===== ERROR ===== -->
+<div *ngIf="!trashMode && error && !loading" class="alert alert-danger fade-in-up"><app-icon name="warning"></app-icon> {{ error }}</div>
+
+<div *ngIf="!trashMode && !loading && !error">
+
+  <!-- ===== TALENT SEARCH (RAG) ===== -->
+  <div class="talent-panel fade-in-up">
+    <div class="talent-head">
+      <span class="talent-badge"><app-icon name="cpu"></app-icon> IA</span>
+      <div>
+        <h3 class="talent-title">Talent Search — Recherche intelligente</h3>
+        <p class="talent-sub">Décrivez le profil recherché en langage naturel, l'IA classe tout le vivier par pertinence.</p>
+      </div>
+    </div>
+
+    <div class="talent-search-bar">
+      <span class="search-icon"><app-icon name="sparkles"></app-icon></span>
+      <input
+        type="text"
+        class="talent-input"
+        placeholder="ex: coach robotique qui maîtrise Arduino et bon avec les enfants..."
+        [(ngModel)]="talentQuery"
+        (keyup.enter)="runTalentSearch()" />
+      <button *ngIf="talentQuery" (click)="clearTalentSearch()" class="search-clear"><app-icon name="close"></app-icon></button>
+      <button class="btn btn-primary talent-btn" (click)="runTalentSearch()" [disabled]="talentLoading || !talentQuery.trim()">
+        <ng-container *ngIf="!talentLoading"><app-icon name="search" [size]="18"></app-icon> Rechercher</ng-container>
+        <ng-container *ngIf="talentLoading">Recherche...</ng-container>
+      </button>
+    </div>
+
+    <div class="talent-examples" *ngIf="!talentMode">
+      <span class="examples-label">Exemples :</span>
+      <button *ngFor="let ex of talentExamples" class="example-chip" (click)="useExample(ex)">{{ ex }}</button>
+    </div>
+  </div>
+
+  <!-- ===== RÉSULTATS TALENT SEARCH ===== -->
+  <div *ngIf="talentMode" class="talent-results fade-in-up">
+    <div class="talent-results-head">
+      <h3>
+        Résultats pour «&nbsp;<em>{{ talentQuery }}</em>&nbsp;»
+        <span class="results-count" *ngIf="!talentLoading">{{ talentResults.length }} candidat(s)</span>
+      </h3>
+      <button class="btn btn-secondary" (click)="clearTalentSearch()"><app-icon name="arrow-left"></app-icon> Retour à tous</button>
+    </div>
+
+    <div *ngIf="talentLoading" class="loading-state"><div class="spinner"></div><p>Analyse sémantique du vivier...</p></div>
+    <div *ngIf="talentError && !talentLoading" class="alert alert-danger"><app-icon name="warning"></app-icon> {{ talentError }}</div>
+
+    <div *ngIf="!talentLoading && !talentError && talentResults.length === 0" class="empty-state">
+      <div class="empty-icon"><app-icon name="search" [size]="44"></app-icon></div>
+      <h3>Aucun candidat ne correspond à ce critère</h3>
+      <p>Aucun profil du vivier n'atteint le seuil de pertinence (35%) pour «&nbsp;<strong>{{ talentQuery }}</strong>&nbsp;».</p>
+      <p class="hint-muted">Essayez d'autres mots-clés, ou élargissez votre recherche.</p>
+    </div>
+
+    <div class="candidates-grid" *ngIf="!talentLoading && talentResults.length > 0">
+      <div *ngFor="let c of talentResults; let i = index"
+           class="candidate-card talent-card"
+           [style.animation-delay.ms]="i * 40"
+           (click)="navigateToDetail(c.id)">
+        <div class="relevance-banner" [class]="getRelevanceClass(c.relevanceScore || 0)">
+          <span class="rank-num">#{{ i + 1 }}</span>
+          <span class="relevance-val">{{ c.relevanceScore | number:'1.0-0' }}% pertinent</span>
+        </div>
+        <div class="card-body">
+          <div class="talent-card-top">
+            <div class="card-avatar" [class]="getScoreClass(c.scores.overallScore || 0)">
+              {{ (c.candidateName.charAt(0).toUpperCase() || '?') }}
+            </div>
+            <div>
+              <h3 class="card-name">{{ c.candidateName }}</h3>
+              <p class="card-email"><app-icon name="mail"></app-icon> {{ c.email }}</p>
+            </div>
+          </div>
+
+          <div class="relevance-bar-wrap">
+            <div class="relevance-bar" [class]="getRelevanceClass(c.relevanceScore || 0)"
+                 [style.width.%]="c.relevanceScore || 0"></div>
+          </div>
+
+          <div class="talent-tags" *ngIf="c.analysis?.skills?.length">
+            <span class="talent-tag" *ngFor="let s of (c.analysis.skills || []).slice(0, 5)">{{ s }}</span>
+          </div>
+
+          <div class="card-footer">
+            <span class="decision-badge" [class]="getScoreClass(c.scores.overallScore || 0)">
+              {{ getDecisionLabel(c.scores.overallScore || 0) }} ({{ c.scores.overallScore | number:'1.0-0' }})
+            </span>
+            <span class="match-info"><app-icon name="cpu"></app-icon> {{ c.semanticScore | number:'1.0-0' }}% sém.</span>
+          </div>
+        </div>
+        <div class="card-action"><span>Voir le profil <app-icon name="arrow-right"></app-icon></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOOLBAR : recherche + filtres (masqué en mode Talent Search) ===== -->
+  <div class="toolbar fade-in-up" *ngIf="!talentMode">
+    <div class="search-bar">
+      <span class="search-icon"><app-icon name="search"></app-icon></span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Rechercher un candidat..."
+        [(ngModel)]="searchQuery"
+        (input)="onSearch()" />
+      <button *ngIf="searchQuery" (click)="clearSearch()" class="search-clear"><app-icon name="close"></app-icon></button>
+    </div>
+
+    <div class="filter-chips">
+      <button class="chip" [class.active]="filterDecision === 'all'"       (click)="setFilter('all')">
+        Tous <span class="chip-count">{{ getCountByDecision('all') }}</span>
+      </button>
+      <button class="chip chip-excellent" [class.active]="filterDecision === 'excellent'" (click)="setFilter('excellent')">
+        <app-icon name="award"></app-icon> Excellents <span class="chip-count">{{ getCountByDecision('excellent') }}</span>
+      </button>
+      <button class="chip chip-strong"    [class.active]="filterDecision === 'strong'"    (click)="setFilter('strong')">
+        <app-icon name="zap"></app-icon> Forts <span class="chip-count">{{ getCountByDecision('strong') }}</span>
+      </button>
+      <button class="chip chip-moderate"  [class.active]="filterDecision === 'moderate'"  (click)="setFilter('moderate')">
+        <app-icon name="clipboard"></app-icon> Modérés <span class="chip-count">{{ getCountByDecision('moderate') }}</span>
+      </button>
+      <button class="chip chip-weak"      [class.active]="filterDecision === 'weak'"      (click)="setFilter('weak')">
+        <app-icon name="warning"></app-icon> Faibles <span class="chip-count">{{ getCountByDecision('weak') }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== GRID CARDS ===== -->
+  <div class="candidates-grid fade-in-up" *ngIf="!talentMode && filteredCandidates.length > 0">
+    <div
+      *ngFor="let c of filteredCandidates; let i = index"
+      class="candidate-card"
+      [style.animation-delay.ms]="i * 50"
+      (click)="navigateToDetail(c.id)">
+
+      <div class="card-top">
+        <div class="card-avatar" [class]="getScoreClass(c.scores.overallScore || 0)">
+          {{ (c.candidateName.charAt(0).toUpperCase() || '?') }}
+        </div>
+        <div class="card-score-circle" [class]="getScoreClass(c.scores.overallScore || 0)">
+          {{ c.scores.overallScore | number:'1.0-0' }}
+        </div>
+      </div>
+
+      <div class="card-body">
+        <h3 class="card-name">{{ c.candidateName }}</h3>
+        <p class="card-email"><app-icon name="mail"></app-icon> {{ c.email }}</p>
+
+        <div class="card-stats">
+          <div class="card-stat">
+            <span class="stat-label">Éducation</span>
+            <span class="stat-val">{{ c.scores.educationScore | number:'1.1-1' }}</span>
+          </div>
+          <div class="card-stat">
+            <span class="stat-label">Expérience</span>
+            <span class="stat-val">{{ c.scores.experienceScore | number:'1.1-1' }}</span>
+          </div>
+          <div class="card-stat">
+            <span class="stat-label">Skills</span>
+            <span class="stat-val">{{ c.scores.skillsScore | number:'1.1-1' }}</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <span class="decision-badge" [class]="getScoreClass(c.scores.overallScore || 0)">
+            {{ getDecisionLabel(c.scores.overallScore || 0) }}
+          </span>
+          <span class="match-info"><app-icon name="target"></app-icon> {{ c.matchPercentage | number:'1.0-0' }}%</span>
+        </div>
+      </div>
+
+      <div class="card-action">
+        <span>Voir le profil <app-icon name="arrow-right"></app-icon></span>
+        <button class="card-delete-btn" title="Mettre à la corbeille" (click)="deleteCandidate(c, $event)"><app-icon name="trash"></app-icon></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EMPTY ===== -->
+  <div *ngIf="!talentMode && filteredCandidates.length === 0" class="empty-state fade-in-up">
+    <div class="empty-icon"><app-icon name="inbox" [size]="44"></app-icon></div>
+    <h3>Aucun candidat trouvé</h3>
+    <p *ngIf="searchQuery">Aucun résultat pour "<strong>{{ searchQuery }}</strong>"</p>
+    <p *ngIf="!searchQuery && candidates.length === 0">Commencez par analyser votre premier CV.</p>
+    <a routerLink="/upload" class="btn btn-primary" *ngIf="candidates.length === 0">
+      <app-icon name="rocket"></app-icon> Analyser un CV
+    </a>
+  </div>
+
+</div>

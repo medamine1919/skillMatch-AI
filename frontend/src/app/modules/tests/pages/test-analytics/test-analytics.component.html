@@ -1,0 +1,118 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><app-icon name="analytics"></app-icon> Dashboard Test</h1>
+    <p class="page-subtitle">Statistiques des tests techniques pour distinguer les meilleurs profils</p>
+  </div>
+  <div class="header-actions no-print">
+    <button (click)="exportCsv()" class="btn btn-secondary" [disabled]="total === 0"><app-icon name="download" [size]="16"></app-icon> Export CSV</button>
+    <button (click)="exportPdf()" class="btn btn-secondary" [disabled]="total === 0"><app-icon name="download" [size]="16"></app-icon> Export PDF</button>
+    <button (click)="load()" class="btn btn-secondary"><app-icon name="refresh" [size]="16"></app-icon> Actualiser</button>
+  </div>
+</div>
+
+<div *ngIf="loading" class="state"><div class="spinner"></div><p>Chargement...</p></div>
+<div *ngIf="error && !loading" class="alert-danger">{{ error }}</div>
+
+<div *ngIf="!loading && !error">
+  <!-- ===== Filtres ===== -->
+  <div class="filters no-print">
+    <label class="filter">
+      <span>Recruteur</span>
+      <select [(ngModel)]="filterRecruiter" (change)="applyFilters()">
+        <option value="all">Tous</option>
+        <option *ngFor="let r of recruiters" [value]="r">{{ r }}</option>
+      </select>
+    </label>
+    <label class="filter">
+      <span>Poste</span>
+      <select [(ngModel)]="filterJob" (change)="applyFilters()">
+        <option value="all">Tous</option>
+        <option *ngFor="let j of jobs" [value]="j">{{ j }}</option>
+      </select>
+    </label>
+    <button class="btn btn-secondary" (click)="resetFilters()">Réinitialiser</button>
+  </div>
+
+  <!-- ===== Cartes KPI ===== -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <span class="kpi-label">Tests envoyés</span>
+      <span class="kpi-value">{{ total }}</span>
+      <span class="kpi-sub">{{ pending }} en attente · {{ expired }} expirés</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Tests passés</span>
+      <span class="kpi-value">{{ completed }}</span>
+      <span class="kpi-sub">sur {{ total }} envoyés</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Taux de complétion</span>
+      <span class="kpi-value">{{ completionRate }}%</span>
+      <span class="kpi-sub">candidats ayant répondu</span>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-label">Note moyenne</span>
+      <span class="kpi-value">{{ avgScore }}%</span>
+      <span class="kpi-sub">meilleur : {{ bestScore }}%</span>
+    </div>
+    <div class="kpi-card highlight">
+      <span class="kpi-label">Taux de réussite</span>
+      <span class="kpi-value">{{ passRate }}%</span>
+      <span class="kpi-sub">seuil de réussite : 60%</span>
+    </div>
+  </div>
+
+  <!-- ===== État vide ===== -->
+  <div *ngIf="total === 0" class="empty">
+    <app-icon name="inbox" [size]="40"></app-icon>
+    <p>Aucun test à analyser pour ce filtre.</p>
+  </div>
+
+  <ng-container *ngIf="total > 0">
+    <!-- ===== Graphiques ===== -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Répartition par statut</h3>
+        <div class="chart-box"><canvas #statusCanvas></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Distribution des notes</h3>
+        <div class="chart-box"><canvas #distCanvas></canvas></div>
+      </div>
+      <div class="chart-card wide">
+        <h3>Note moyenne par poste</h3>
+        <div class="chart-box"><canvas #jobCanvas></canvas></div>
+      </div>
+    </div>
+
+    <!-- ===== Classement des candidats testés ===== -->
+    <div class="chart-card">
+      <h3>Top candidats testés</h3>
+      <div class="table-wrap" *ngIf="ranking.length > 0">
+        <table class="data-table">
+          <thead>
+            <tr><th>#</th><th>Candidat</th><th>Poste</th><th>Score</th><th>Résultat</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of ranking; let i = index">
+              <td class="rank">{{ i + 1 }}</td>
+              <td>
+                <div class="cell-name">
+                  <div class="mini-avatar">{{ initial(t.candidateName) }}</div>
+                  <div>
+                    <strong>{{ t.candidateName }}</strong>
+                    <div class="muted">{{ t.candidateEmail }}</div>
+                  </div>
+                </div>
+              </td>
+              <td class="muted">{{ t.jobTitle }}</td>
+              <td><span class="score-pill" [class]="scoreClass(t.scorePercent)">{{ t.scorePercent | number:'1.0-0' }}%</span></td>
+              <td><span class="badge" [class]="t.passed ? 'b-ok' : 'b-ko'">{{ t.passed ? 'Réussi' : 'Échoué' }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p *ngIf="ranking.length === 0" class="muted pad">Aucun test passé pour le moment — le classement s'affichera dès qu'un candidat aura répondu.</p>
+    </div>
+  </ng-container>
+</div>

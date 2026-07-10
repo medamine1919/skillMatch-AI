@@ -1,0 +1,15 @@
+<svg width="320" height="180" viewBox="0 0 320 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="180" rx="18" fill="#FFFFFF"/>
+  <g transform="translate(104 18)">
+    <path d="M50 0C41 0 32 4.5 27 12.5C21.5 21 20.8 31.8 24.9 41.1C16.7 45.2 10.5 53.1 8.5 62.7C5.6 76.8 13.2 91 26.2 97.4C29.8 99.1 33.8 100 37.9 100H62.1C66.2 100 70.2 99.1 73.8 97.4C86.8 91 94.4 76.8 91.5 62.7C89.5 53.1 83.3 45.2 75.1 41.1C79.2 31.8 78.5 21 73 12.5C68 4.5 59 0 50 0Z" fill="#09A6C6"/>
+    <path d="M50 13C58.3 13 66 17.3 70.2 24.3C73.9 30.4 74.5 37.8 72 44.3C74.9 45.5 77.4 47.4 79.3 49.8C83.5 54.8 84.8 61.6 82.8 67.9C80 76.7 71.8 82.7 62.6 82.7H37.4C28.2 82.7 20 76.7 17.2 67.9C15.2 61.6 16.5 54.8 20.7 49.8C22.6 47.4 25.1 45.5 28 44.3C25.5 37.8 26.1 30.4 29.8 24.3C34 17.3 41.7 13 50 13Z" fill="#FFFFFF" opacity="0.15"/>
+    <circle cx="38" cy="48" r="10" fill="#FFFFFF"/>
+    <circle cx="62" cy="48" r="10" fill="#FFFFFF"/>
+    <circle cx="35" cy="45" r="4" fill="#0F5B6D"/>
+    <circle cx="59" cy="45" r="4" fill="#0F5B6D"/>
+    <path d="M39 68C43.2 71.4 56.8 71.4 61 68" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>
+    <path d="M50 2C52.2 6.8 52.2 9.7 50 14.5C47.8 9.7 47.8 6.8 50 2Z" fill="#09A6C6"/>
+    <path d="M72.5 7C75.4 12.3 75.3 18.3 71.9 23.4C67 22 64.1 19.6 62.3 15.4C65.5 11.7 68.7 9.4 72.5 7Z" fill="#09A6C6"/>
+  </g>
+  <text x="160" y="148" text-anchor="middle" fill="#0DA2C0" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="800" letter-spacing="1.5">DecliTech</text>
+</svg>

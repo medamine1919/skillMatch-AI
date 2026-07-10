@@ -1,0 +1,62 @@
+.page-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+.page-title { font-size: 1.6rem; font-weight: 800; color: #1F4E79; margin: 0; display: flex; align-items: center; gap: .5rem; }
+.page-subtitle { color: #6b7280; margin: 4px 0 0; }
+
+.btn { padding: 9px 16px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: .88rem; display: inline-flex; align-items: center; gap: .4rem; }
+.btn-secondary { background: #eef2f7; color: #1F4E79; border: 1.5px solid #1F4E79; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.header-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+
+/* ===== Filtres ===== */
+.filters { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1.4rem; }
+.filter { display: flex; flex-direction: column; gap: .3rem; font-size: .78rem; font-weight: 600; color: #555; }
+.filter select { padding: 8px 12px; border-radius: 10px; border: 1px solid #e5e9f0; background: #fff; font-size: .88rem; color: #1f2937; min-width: 180px; }
+
+/* ===== Cartes KPI ===== */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.6rem; }
+.kpi-card { background: #fff; border: 1px solid #e5e9f0; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.04); padding: 1.1rem 1.2rem; display: flex; flex-direction: column; gap: .25rem; }
+.kpi-card.highlight { background: linear-gradient(135deg,#667eea,#764ba2); border-color: transparent; }
+.kpi-label { font-size: .78rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+.kpi-value { font-size: 1.9rem; font-weight: 800; color: #1F4E79; line-height: 1.1; }
+.kpi-sub { font-size: .76rem; color: #9ca3af; }
+.kpi-card.highlight .kpi-label,
+.kpi-card.highlight .kpi-value,
+.kpi-card.highlight .kpi-sub { color: #fff; }
+.kpi-card.highlight .kpi-sub { color: rgba(255,255,255,.8); }
+
+/* ===== Graphiques ===== */
+.charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1rem; }
+.chart-card { background: #fff; border: 1px solid #e5e9f0; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.04); padding: 1.1rem 1.2rem; margin-bottom: 1rem; }
+.chart-card h3 { margin: 0 0 1rem; font-size: 1rem; color: #1F4E79; font-weight: 700; }
+.chart-card.wide { grid-column: 1 / -1; }
+.chart-box { position: relative; height: 260px; }
+
+/* ===== Tableau / classement ===== */
+.table-wrap { background: #fff; border-radius: 12px; overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { background: #f0f4f8; padding: 11px 14px; text-align: left; font-size: .76rem; color: #555; text-transform: uppercase; letter-spacing: .03em; border-bottom: 2px solid #e0e0e0; }
+.data-table td { padding: 11px 14px; border-bottom: 1px solid #f0f0f0; font-size: .88rem; vertical-align: middle; }
+.rank { font-weight: 800; color: #1F4E79; width: 40px; }
+.cell-name { display: flex; align-items: center; gap: 10px; }
+.mini-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#1F4E79,#3b82f6); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; }
+.muted { color: #6b7280; font-size: .82rem; }
+.muted.pad { padding: 16px; }
+
+.score-pill { padding: 3px 11px; border-radius: 999px; font-weight: 700; font-size: .82rem; color: #fff; }
+.sc-ok { background: #22c55e; }
+.sc-ko { background: #ef4444; }
+
+.badge { padding: 3px 10px; border-radius: 999px; font-size: .76rem; font-weight: 700; }
+.b-ok { background: #f0fdf4; color: #166534; }
+.b-ko { background: #fef2f2; color: #991b1b; }
+
+/* ===== États ===== */
+.state { text-align: center; padding: 50px; color: #6b7280; }
+.spinner { width: 34px; height: 34px; border: 3px solid #e5e9f0; border-top-color: #1F4E79; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; padding: 40px; color: #9ca3af; }
+.alert-danger { background: #fef2f2; border: 1px solid #ef4444; color: #991b1b; padding: 12px 18px; border-radius: 10px; }
+
+@media (max-width: 720px) {
+  .charts-grid { grid-template-columns: 1fr; }
+}

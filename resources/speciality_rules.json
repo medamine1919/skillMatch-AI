@@ -1,0 +1,11 @@
+{
+  "priority_order": [
+    "Web Dev",
+    "AI/Data",
+    "Robotics/Embedded",
+    "Mobile",
+    "Cybersecurity",
+    "Programming for Kids"
+  ],
+  "notes": "These are lightweight heuristic rules for V1. Extend as needed in V2."
+}
