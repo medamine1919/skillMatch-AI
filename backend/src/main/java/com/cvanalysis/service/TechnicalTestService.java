@@ -32,7 +32,7 @@ import java.util.*;
 public class TechnicalTestService {
 
     private static final int PASS_THRESHOLD = 60;      // réussite si score >= 60%
-    private static final int EXPIRY_HOURS = 72;        // validité du lien
+    private static final int EXPIRY_HOURS = 48;        // validité du lien : 48h puis expiration automatique
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @Autowired private TechnicalTestRepository testRepository;
@@ -122,12 +122,8 @@ public class TechnicalTestService {
         TechnicalTest test = testRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Lien de test invalide."));
 
-        // Expiration
-        if (test.getExpiresAt() != null && test.getExpiresAt().isBefore(LocalDateTime.now())
-                && "PENDING".equals(test.getStatus())) {
-            test.setStatus("EXPIRED");
-            testRepository.save(test);
-        }
+        // Expiration : bloque l'accès si le délai (48h) est dépassé.
+        expireIfNeeded(test);
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("candidateName", test.getCandidateName());
         out.put("jobTitle", test.getJobTitle());
@@ -165,6 +161,7 @@ public class TechnicalTestService {
     public Map<String, Object> submitTest(String token, List<Integer> answers) {
         TechnicalTest test = testRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Lien de test invalide."));
+        expireIfNeeded(test);   // si le délai (48h) est dépassé, le test passe en EXPIRED avant toute soumission
         if (!"PENDING".equals(test.getStatus())) {
             throw new RuntimeException("Ce test a déjà été passé ou a expiré.");
         }
@@ -204,6 +201,7 @@ public class TechnicalTestService {
     public List<Map<String, Object>> listTests() {
         List<Map<String, Object>> out = new ArrayList<>();
         for (TechnicalTest t : testRepository.findAllByOrderByCreatedAtDesc()) {
+            expireIfNeeded(t);   // reflète l'expiration (48h) même si le candidat n'a jamais ouvert le lien
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("id", t.getId());
             m.put("candidateName", t.getCandidateName());
@@ -220,5 +218,24 @@ public class TechnicalTestService {
             out.add(m);
         }
         return out;
+    }
+
+    /**
+     * Marque un test comme EXPIRED s'il est encore PENDING mais que le délai de
+     * validité (48h) est dépassé. Appelé à chaque lecture (dashboard, passage,
+     * soumission) pour que l'expiration soit effective même si le candidat
+     * n'ouvre jamais le lien d'invitation.
+     *
+     * @return true si le test vient d'être expiré.
+     */
+    private boolean expireIfNeeded(TechnicalTest test) {
+        if ("PENDING".equals(test.getStatus())
+                && test.getExpiresAt() != null
+                && test.getExpiresAt().isBefore(LocalDateTime.now())) {
+            test.setStatus("EXPIRED");
+            testRepository.save(test);
+            return true;
+        }
+        return false;
     }
 }

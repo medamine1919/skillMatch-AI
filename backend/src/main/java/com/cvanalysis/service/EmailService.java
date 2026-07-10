@@ -189,7 +189,7 @@ public class EmailService {
                     Passer au test
                   </a>
                 </div>
-                <p style="font-size:13px;color:#888">Ce lien est valable 72 heures et ne peut être utilisé
+                <p style="font-size:13px;color:#888">Ce lien est valable 48 heures et ne peut être utilisé
                    qu'une seule fois. Aucune création de compte n'est nécessaire.</p>
                 <p style="font-size:13px;color:#888">SkillMatch AI — DecliTech Innovation</p>
               </div>
