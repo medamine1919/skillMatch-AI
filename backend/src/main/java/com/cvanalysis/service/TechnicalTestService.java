@@ -204,6 +204,7 @@ public class TechnicalTestService {
             expireIfNeeded(t);   // reflète l'expiration (48h) même si le candidat n'a jamais ouvert le lien
             Map<String, Object> m = new LinkedHashMap<>();
             m.put("id", t.getId());
+            m.put("analysisResultId", t.getAnalysisResultId());   // pour ouvrir la fiche candidat
             m.put("candidateName", t.getCandidateName());
             m.put("candidateEmail", t.getCandidateEmail());
             m.put("jobTitle", t.getJobTitle());

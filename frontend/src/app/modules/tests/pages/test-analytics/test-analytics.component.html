@@ -69,6 +69,28 @@
   </div>
 
   <ng-container *ngIf="total > 0">
+    <!-- ===== Décision recommandée (segments) ===== -->
+    <div class="seg-row" *ngIf="completed > 0">
+      <div class="seg seg-conv">
+        <span class="seg-count">{{ segConvoquer }}</span>
+        <span class="seg-lbl">🟢 À convoquer</span>
+        <span class="seg-hint">score ≥ 75 %</span>
+        <button class="seg-btn" (click)="openSegment('convoquer')" [disabled]="segConvoquer === 0">Voir détails</button>
+      </div>
+      <div class="seg seg-rev">
+        <span class="seg-count">{{ segRevoir }}</span>
+        <span class="seg-lbl">🟡 À revoir</span>
+        <span class="seg-hint">60 – 74 %</span>
+        <button class="seg-btn" (click)="openSegment('revoir')" [disabled]="segRevoir === 0">Voir détails</button>
+      </div>
+      <div class="seg seg-eca">
+        <span class="seg-count">{{ segEcarte }}</span>
+        <span class="seg-lbl">🔴 Écartés</span>
+        <span class="seg-hint">&lt; 60 %</span>
+        <button class="seg-btn" (click)="openSegment('ecarte')" [disabled]="segEcarte === 0">Voir détails</button>
+      </div>
+    </div>
+
     <!-- ===== Graphiques ===== -->
     <div class="charts-grid">
       <div class="chart-card">
@@ -91,7 +113,7 @@
       <div class="table-wrap" *ngIf="ranking.length > 0">
         <table class="data-table">
           <thead>
-            <tr><th>#</th><th>Candidat</th><th>Poste</th><th>Score</th><th>Résultat</th></tr>
+            <tr><th>#</th><th>Candidat</th><th>Poste</th><th>Score</th><th>vs moy. poste</th><th>Position</th><th>Recommandation</th><th>Fiche</th></tr>
           </thead>
           <tbody>
             <tr *ngFor="let t of ranking; let i = index">
@@ -107,7 +129,14 @@
               </td>
               <td class="muted">{{ t.jobTitle }}</td>
               <td><span class="score-pill" [class]="scoreClass(t.scorePercent)">{{ t.scorePercent | number:'1.0-0' }}%</span></td>
-              <td><span class="badge" [class]="t.passed ? 'b-ok' : 'b-ko'">{{ t.passed ? 'Réussi' : 'Échoué' }}</span></td>
+              <td><span class="delta" [class]="deltaClass(t.deltaJob)">{{ deltaLabel(t.deltaJob) }} pts</span></td>
+              <td class="muted">Top {{ t.topPercent }}%</td>
+              <td><span class="badge" [class]="recoClass(t.reco)">{{ recoLabel(t.reco) }}</span></td>
+              <td>
+                <button class="btn btn-secondary btn-sm" (click)="viewFiche(t)" [disabled]="t.analysisResultId == null" title="Ouvrir la fiche complète">
+                  <app-icon name="users" [size]="14"></app-icon> Voir la fiche
+                </button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -115,4 +144,30 @@
       <p *ngIf="ranking.length === 0" class="muted pad">Aucun test passé pour le moment — le classement s'affichera dès qu'un candidat aura répondu.</p>
     </div>
   </ng-container>
+
+  <!-- ===== Modal : candidats d'un segment ===== -->
+  <div class="modal-overlay" *ngIf="activeSegment" (click)="closeSegment()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h3>{{ segmentTitle() }} — {{ segmentList.length }} candidat(s)</h3>
+        <button class="modal-close" (click)="closeSegment()" aria-label="Fermer">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="cand-row" *ngFor="let r of segmentList">
+          <div class="cell-name">
+            <div class="mini-avatar">{{ initial(r.candidateName) }}</div>
+            <div>
+              <strong>{{ r.candidateName }}</strong>
+              <div class="muted">{{ r.jobTitle }}</div>
+            </div>
+          </div>
+          <span class="score-pill" [class]="scoreClass(r.scorePercent)">{{ r.scorePercent | number:'1.0-0' }}%</span>
+          <button class="btn btn-secondary" (click)="viewFiche(r)" [disabled]="r.analysisResultId == null" title="Ouvrir la fiche complète">
+            <app-icon name="users" [size]="14"></app-icon> Voir la fiche
+          </button>
+        </div>
+        <p *ngIf="segmentList.length === 0" class="muted pad">Aucun candidat dans ce segment.</p>
+      </div>
+    </div>
+  </div>
 </div>

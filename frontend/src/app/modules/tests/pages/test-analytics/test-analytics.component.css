@@ -5,6 +5,7 @@
 .btn { padding: 9px 16px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: .88rem; display: inline-flex; align-items: center; gap: .4rem; }
 .btn-secondary { background: #eef2f7; color: #1F4E79; border: 1.5px solid #1F4E79; }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-sm { padding: 5px 11px; font-size: .8rem; white-space: nowrap; }
 .header-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
 
 /* ===== Filtres ===== */
@@ -50,6 +51,42 @@
 .b-ok { background: #f0fdf4; color: #166534; }
 .b-ko { background: #fef2f2; color: #991b1b; }
 
+/* ===== Recommandation de décision ===== */
+.b-conv { background: #dcfce7; color: #166534; }
+.b-rev  { background: #ffedd5; color: #9a3412; }
+.b-eca  { background: #fee2e2; color: #991b1b; }
+
+/* ===== Écart au benchmark (vs moyenne du poste) ===== */
+.delta { font-weight: 700; font-size: .8rem; padding: 2px 9px; border-radius: 999px; }
+.d-pos { background: #f0fdf4; color: #166534; }
+.d-neg { background: #fef2f2; color: #991b1b; }
+
+/* ===== Segments de décision (cartes) ===== */
+.seg-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.6rem; }
+.seg { border-radius: 14px; padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: .2rem; border: 1px solid; }
+.seg-count { font-size: 1.9rem; font-weight: 800; line-height: 1; }
+.seg-lbl { font-weight: 700; font-size: .9rem; }
+.seg-hint { font-size: .74rem; opacity: .85; }
+.seg-conv { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+.seg-rev  { background: #fff7ed; border-color: #fed7aa; color: #92400e; }
+.seg-eca  { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+.seg-btn { margin-top: .5rem; align-self: flex-start; background: rgba(255,255,255,.7); border: 1px solid currentColor; color: inherit; border-radius: 8px; padding: 5px 12px; font-weight: 600; font-size: .8rem; cursor: pointer; }
+.seg-btn:hover:not(:disabled) { background: #fff; }
+.seg-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ===== Modal détails d'un segment ===== */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+.modal { background: #fff; border-radius: 16px; width: 100%; max-width: 560px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,.25); overflow: hidden; }
+.modal-head { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.3rem; border-bottom: 1px solid #eef1f6; }
+.modal-head h3 { margin: 0; font-size: 1.05rem; color: #1F4E79; }
+.modal-close { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 1rem; color: #475569; }
+.modal-close:hover { background: #e2e8f0; }
+.modal-body { padding: .8rem 1.3rem 1.3rem; overflow-y: auto; }
+.cand-row { display: flex; align-items: center; gap: 12px; padding: .7rem 0; border-bottom: 1px solid #f2f4f8; }
+.cand-row:last-child { border-bottom: none; }
+.cand-row .cell-name { flex: 1; }
+.cand-row .btn { padding: 6px 12px; font-size: .82rem; }
+
 /* ===== États ===== */
 .state { text-align: center; padding: 50px; color: #6b7280; }
 .spinner { width: 34px; height: 34px; border: 3px solid #e5e9f0; border-top-color: #1F4E79; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px; }
@@ -59,4 +96,5 @@
 
 @media (max-width: 720px) {
   .charts-grid { grid-template-columns: 1fr; }
+  .seg-row { grid-template-columns: 1fr; }
 }
