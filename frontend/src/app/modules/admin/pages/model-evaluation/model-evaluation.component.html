@@ -1,0 +1,93 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title"><app-icon name="analytics"></app-icon> Évaluation du modèle</h1>
+    <p class="page-subtitle">Métriques scientifiques du moteur de scoring sur un jeu de test annoté</p>
+  </div>
+  <button (click)="load()" class="btn btn-secondary"><app-icon name="refresh" [size]="16"></app-icon> Actualiser</button>
+</div>
+
+<div *ngIf="loading" class="state"><div class="spinner"></div><p>Calcul de l'évaluation...</p></div>
+<div *ngIf="error && !loading" class="alert-danger">{{ error }}</div>
+
+<div *ngIf="!loading && !error && stats">
+  <!-- ===== Bandeau contexte ===== -->
+  <div class="context-bar">
+    <span><strong>{{ stats.n }}</strong> paires (CV, offre) annotées</span>
+    <span>Seuil de présélection : <strong>{{ stats.seuil }}/100</strong></span>
+  </div>
+
+  <!-- ===== Deux blocs de métriques ===== -->
+  <div class="metrics-grid">
+    <div class="metric-card" *ngIf="domain">
+      <h3>🎯 Détection hors-domaine</h3>
+      <div class="metric-row">
+        <div class="metric"><span class="m-val">{{ pct(domain.accuracy) }}</span><span class="m-lbl">Exactitude</span></div>
+        <div class="metric"><span class="m-val">{{ pct(domain.precision) }}</span><span class="m-lbl">Précision</span></div>
+        <div class="metric"><span class="m-val">{{ pct(domain.recall) }}</span><span class="m-lbl">Rappel</span></div>
+        <div class="metric hl"><span class="m-val">{{ pct(domain.f1) }}</span><span class="m-lbl">F1-score</span></div>
+      </div>
+      <div class="confusion">
+        <span class="cf cf-tp">VP {{ domain.tp }}</span>
+        <span class="cf cf-fp">FP {{ domain.fp }}</span>
+        <span class="cf cf-fn">FN {{ domain.fn }}</span>
+        <span class="cf cf-tn">VN {{ domain.tn }}</span>
+      </div>
+    </div>
+
+    <div class="metric-card" *ngIf="relevance">
+      <h3>✅ Présélection (pertinent vs non)</h3>
+      <div class="metric-row">
+        <div class="metric"><span class="m-val">{{ pct(relevance.accuracy) }}</span><span class="m-lbl">Exactitude</span></div>
+        <div class="metric"><span class="m-val">{{ pct(relevance.precision) }}</span><span class="m-lbl">Précision</span></div>
+        <div class="metric"><span class="m-val">{{ pct(relevance.recall) }}</span><span class="m-lbl">Rappel</span></div>
+        <div class="metric hl"><span class="m-val">{{ pct(relevance.f1) }}</span><span class="m-lbl">F1-score</span></div>
+      </div>
+      <div class="confusion">
+        <span class="cf cf-tp">VP {{ relevance.tp }}</span>
+        <span class="cf cf-fp">FP {{ relevance.fp }}</span>
+        <span class="cf cf-fn">FN {{ relevance.fn }}</span>
+        <span class="cf cf-tn">VN {{ relevance.tn }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Séparation des scores ===== -->
+  <div class="separation">
+    <div class="sep-card sep-pos">
+      <span class="sep-val">{{ stats.score_moyen_pertinents }}/100</span>
+      <span class="sep-lbl">Score moyen — profils pertinents</span>
+    </div>
+    <div class="sep-arrow">vs</div>
+    <div class="sep-card sep-neg">
+      <span class="sep-val">{{ stats.score_moyen_non_pertinents }}/100</span>
+      <span class="sep-lbl">Score moyen — profils non pertinents</span>
+    </div>
+  </div>
+
+  <!-- ===== Détail par cas ===== -->
+  <div class="table-card">
+    <h3>Détail par cas de test</h3>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Cas</th><th>Score</th><th>Décision</th><th>Retenu</th><th>Hors-domaine</th><th>Famille détectée</th><th>OK</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of rows">
+            <td class="mono">{{ r.id }}</td>
+            <td><span class="score-pill" [class]="scoreClass(r.score)">{{ r.score }}</span></td>
+            <td class="muted">{{ r.decision }}</td>
+            <td><span class="tag" [class]="r.predit_retenu ? 't-yes' : 't-no'">{{ r.predit_retenu ? 'oui' : 'non' }}</span></td>
+            <td><span class="tag" [class]="r.predit_hors_domaine ? 't-warn' : 't-neutral'">{{ r.predit_hors_domaine ? 'oui' : 'non' }}</span></td>
+            <td class="muted">{{ r.famille_detectee }}</td>
+            <td>
+              <span class="ok" [class]="(r.ok_pertinence && r.ok_hors_domaine) ? 'ok-y' : 'ok-n'">
+                {{ (r.ok_pertinence && r.ok_hors_domaine) ? '✔' : '✕' }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

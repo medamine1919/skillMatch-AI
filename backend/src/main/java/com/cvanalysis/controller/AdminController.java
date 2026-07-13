@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -42,8 +43,14 @@ public class AdminController {
     @Autowired
     private CVAnalysisService cvAnalysisService;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     @Value("${app.frontend-url:http://localhost:4200}")
     private String frontendUrl;
+
+    @Value("${fastapi.url:http://localhost:8000}")
+    private String fastApiUrl;
 
     // =========================================================
     // ANALYTICS ADMIN — vue par recruteur + tous les candidats
@@ -58,6 +65,25 @@ public class AdminController {
     @PreAuthorize("hasRole('ADMIN_RH')")
     public ResponseEntity<?> analyticsCandidates() {
         return ResponseEntity.ok(cvAnalysisService.getAllCandidatesWithRecruiter());
+    }
+
+    // =========================================================
+    // ÉVALUATION DU MODÈLE — métriques de scoring (relais FastAPI)
+    // Réservé à l'admin RH ; le microservice IA calcule, Spring sécurise.
+    // =========================================================
+    @GetMapping("/admin/model-evaluation")
+    @PreAuthorize("hasRole('ADMIN_RH')")
+    public ResponseEntity<?> modelEvaluation() {
+        try {
+            String url = fastApiUrl.endsWith("/")
+                    ? fastApiUrl + "model-evaluation"
+                    : fastApiUrl + "/model-evaluation";
+            Object body = restTemplate.getForObject(url, Object.class);
+            return ResponseEntity.ok(body);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body(Map.of("error", "Service d'évaluation indisponible : " + e.getMessage()));
+        }
     }
 
     // =========================================================

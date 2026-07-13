@@ -39,6 +39,10 @@
         <span class="nav-icon"><app-icon name="analytics"></app-icon></span>
         <span class="nav-label">Analytics RH</span>
       </a>
+      <a *ngIf="user.role === 'ADMIN_RH'" routerLink="/admin/evaluation" routerLinkActive="active" class="nav-item nav-item-admin">
+        <span class="nav-icon"><app-icon name="analytics"></app-icon></span>
+        <span class="nav-label">Évaluation du modèle</span>
+      </a>
       <a *ngIf="user.role === 'ADMIN_RH'" routerLink="/admin/users" routerLinkActive="active" class="nav-item nav-item-admin">
         <span class="nav-icon"><app-icon name="settings"></app-icon></span>
         <span class="nav-label">Gestion accès</span>

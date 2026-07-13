@@ -1,0 +1,18 @@
+﻿id;attendu_pertinent;attendu_hors_domaine;score;decision;predit_retenu;predit_hors_domaine;famille_detectee;domain_fit;ok_pertinence;ok_hors_domaine
+P1-dev_web;True;False;62.6;Moderate Fit;True;False;Coach Développement Web;0.816;True;True
+P2-ia_data;True;False;51.2;Weak Fit;False;False;Coach IA / Data;0.6;False;True
+P3-robotique;True;False;74.7;Strong Fit;True;False;Coach Robotique;0.785;True;True
+P4-rh;True;False;71.4;Strong Fit;True;False;Recruteur / RH;0.79;True;True
+P5-finance;True;False;71.9;Strong Fit;True;False;Financier / Comptable;0.848;True;True
+P6-marketing;True;False;69.2;Moderate Fit;True;False;Marketing / Community;0.856;True;True
+P7-reception;True;False;80.9;Strong Fit;True;False;Réceptionniste / Accueil;0.917;True;True
+P8-ingenieur;True;False;80.1;Strong Fit;True;False;Ingénieur / Développeur;0.729;True;True
+O1-devweb_vs_finance;False;True;2.7;Weak Fit;False;True;Financier / Comptable;0.0;True;True
+O2-finance_vs_devweb;False;True;3.1;Weak Fit;False;True;Coach Développement Web;0.0;True;True
+O3-avocat_vs_ingenieur;False;True;3.0;Weak Fit;False;True;Ingénieur / Développeur;0.074;True;True
+O4-mecanicien_vs_ia;False;True;3.2;Weak Fit;False;True;Coach IA / Data;0.032;True;True
+O5-agriculteur_vs_marketing;False;True;6.3;Weak Fit;False;True;Marketing / Community;0.076;True;True
+O6-medecin_vs_devweb;False;True;3.3;Weak Fit;False;True;Coach Développement Web;0.04;True;True
+B1-ia_vs_devweb;True;False;13.4;Weak Fit;False;False;Coach Développement Web;0.6;False;True
+B2-junior_vs_senior;True;False;52.8;Weak Fit;False;False;Ingénieur / Développeur;0.6;False;True
+B3-hybride_recruteur_it;True;False;31.9;Weak Fit;False;False;Recruteur / RH + Ingénieur / Développeur;0.6;False;True

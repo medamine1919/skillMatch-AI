@@ -226,6 +226,25 @@ async def health_check():
     }
 
 
+_EVAL_CACHE: Optional[Dict[str, Any]] = None
+
+
+@app.get("/model-evaluation")
+async def model_evaluation() -> Dict[str, Any]:
+    """
+    Évaluation scientifique du moteur de scoring sur un jeu de test annoté.
+    Renvoie les métriques (précision, rappel, F1, exactitude), les matrices de
+    confusion et le détail par cas. Le résultat est mis en cache : le jeu de
+    test est statique, donc les chiffres ne changent pas d'un appel à l'autre.
+    Exposé côté app UNIQUEMENT via le backend Spring (réservé à l'admin RH).
+    """
+    global _EVAL_CACHE
+    if _EVAL_CACHE is None:
+        from evaluation.evaluate_scoring import evaluate
+        _EVAL_CACHE = evaluate()
+    return _EVAL_CACHE
+
+
 @app.post("/score")
 async def score_cv(
     file: UploadFile = File(...),

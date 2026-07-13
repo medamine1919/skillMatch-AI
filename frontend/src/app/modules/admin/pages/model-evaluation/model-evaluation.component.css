@@ -1,0 +1,70 @@
+.page-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; }
+.page-title { font-size: 1.6rem; font-weight: 800; color: #1F4E79; margin: 0; display: flex; align-items: center; gap: .5rem; }
+.page-subtitle { color: #6b7280; margin: 4px 0 0; }
+
+.btn { padding: 9px 16px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; font-size: .88rem; display: inline-flex; align-items: center; gap: .4rem; }
+.btn-secondary { background: #eef2f7; color: #1F4E79; border: 1.5px solid #1F4E79; }
+
+.context-bar { display: flex; gap: 2rem; flex-wrap: wrap; background: #eef4fb; border: 1px solid #d6e4f5; border-radius: 12px; padding: .8rem 1.2rem; margin-bottom: 1.4rem; color: #1F4E79; font-size: .9rem; }
+
+/* ===== Métriques ===== */
+.metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.4rem; }
+.metric-card { background: #fff; border: 1px solid #e5e9f0; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.04); padding: 1.2rem 1.3rem; }
+.metric-card h3 { margin: 0 0 1rem; font-size: 1.02rem; color: #1F4E79; }
+.metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; margin-bottom: 1rem; }
+.metric { display: flex; flex-direction: column; gap: .1rem; padding: .6rem; border-radius: 10px; background: #f7f9fc; text-align: center; }
+.metric.hl { background: linear-gradient(135deg,#667eea,#764ba2); }
+.metric.hl .m-val, .metric.hl .m-lbl { color: #fff; }
+.m-val { font-size: 1.4rem; font-weight: 800; color: #1F4E79; }
+.m-lbl { font-size: .72rem; color: #6b7280; text-transform: uppercase; letter-spacing: .02em; }
+
+.confusion { display: flex; gap: .5rem; flex-wrap: wrap; }
+.cf { padding: 4px 12px; border-radius: 8px; font-weight: 700; font-size: .82rem; }
+.cf-tp { background: #dcfce7; color: #166534; }
+.cf-tn { background: #e0f2fe; color: #075985; }
+.cf-fp { background: #fef2f2; color: #991b1b; }
+.cf-fn { background: #fff7ed; color: #9a3412; }
+
+/* ===== Séparation des scores ===== */
+.separation { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.4rem; }
+.sep-card { flex: 1; border-radius: 14px; padding: 1.1rem 1.3rem; display: flex; flex-direction: column; gap: .2rem; border: 1px solid; }
+.sep-pos { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+.sep-neg { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+.sep-val { font-size: 1.8rem; font-weight: 800; }
+.sep-lbl { font-size: .8rem; opacity: .85; }
+.sep-arrow { font-weight: 800; color: #9ca3af; }
+
+/* ===== Tableau ===== */
+.table-card { background: #fff; border: 1px solid #e5e9f0; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.04); padding: 1.2rem 1.3rem; }
+.table-card h3 { margin: 0 0 1rem; font-size: 1.02rem; color: #1F4E79; }
+.table-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { background: #f0f4f8; padding: 10px 12px; text-align: left; font-size: .74rem; color: #555; text-transform: uppercase; letter-spacing: .03em; border-bottom: 2px solid #e0e0e0; }
+.data-table td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: .86rem; vertical-align: middle; }
+.mono { font-family: ui-monospace, monospace; font-size: .8rem; color: #334155; }
+.muted { color: #6b7280; font-size: .82rem; }
+
+.score-pill { padding: 3px 11px; border-radius: 999px; font-weight: 700; font-size: .82rem; color: #fff; }
+.sc-ok { background: #22c55e; }
+.sc-ko { background: #ef4444; }
+
+.tag { padding: 3px 10px; border-radius: 999px; font-size: .76rem; font-weight: 700; }
+.t-yes { background: #f0fdf4; color: #166534; }
+.t-no { background: #f1f5f9; color: #475569; }
+.t-warn { background: #fef2f2; color: #991b1b; }
+.t-neutral { background: #f1f5f9; color: #475569; }
+.ok { font-weight: 800; }
+.ok-y { color: #16a34a; }
+.ok-n { color: #dc2626; }
+
+/* ===== États ===== */
+.state { text-align: center; padding: 50px; color: #6b7280; }
+.spinner { width: 34px; height: 34px; border: 3px solid #e5e9f0; border-top-color: #1F4E79; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.alert-danger { background: #fef2f2; border: 1px solid #ef4444; color: #991b1b; padding: 12px 18px; border-radius: 10px; }
+
+@media (max-width: 760px) {
+  .metrics-grid { grid-template-columns: 1fr; }
+  .metric-row { grid-template-columns: repeat(2, 1fr); }
+  .separation { flex-direction: column; }
+}
